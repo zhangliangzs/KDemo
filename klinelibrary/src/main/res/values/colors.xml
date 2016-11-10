@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <!--K线图颜色值-->
+    <color name="klinebg">#090A0B</color>
+    <color name="klinebgline">#292929</color>
+    <color name="klinexyword">#d6d6d6</color>
+    <color name="klinered">#CD1A1E</color>
+    <color name="klinegreen">#25A749</color>
+    <color name="kline5dayline">#dddddd</color>
+    <color name="kline10dayline">#ede32e</color>
+    <color name="kline30dayline">#f600ff</color>
+    <color name="kblack">#E0EEE0</color>
+    <color name="kViewblack">#181818</color>
+    <color name="kViewjwblack">#292929</color>
+    <color name="kViewztblack">#78797A</color>
+    <color name="kViewclickblack">#BEC5DA</color>
+    <color name="tabbg">#272729</color>
+    <color name="tabbgselected">#3b3b3d</color>
+    <color name="background_coler">#EFF0F2</color>
+    <color name="top_coler">#1F2A40</color>
+    <color name="white">#ffffff</color>
+
+    <color name="subject_select">#E70101</color>
+    <color name="subject_select2">#DE394D</color>
+    <color name="tint2">#999999</color>
+    <color name="subject">#505050</color>
+    <color name="subject2">#1BA905</color>
+    <color name="subject3">#47A938</color>
+    <color name="cpb_red">#ffff4444</color>
+    <color name="separator_line_gray">#E6E6E6</color>
+    <color name="black">#000000</color>
+    <color name="lend_bg">#24a5da</color> <!-- Android standard ICS color -->
+</resources>

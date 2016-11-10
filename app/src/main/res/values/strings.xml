@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">KDemo</string>
+    <!--    K线界面-->
+    <string name="string_btc">BTC现货价格</string>
+    <string name="string_ltc">LTC现货价格</string>
+    <string name="string_etc">ETC现货价格</string>
+    <string name="string_eth">ETH现货价格</string>
+
+
+    <string name="price_btc">BTC现货价格</string>
+    <string name="price_ltc">LTC现货价格</string>
+    <string name="price_etc">ETC现货价格</string>
+    <string name="price_eth">ETH现货价格</string>
+
+    <string name="close_quota">关闭指标</string>
+    <string name="specifications">技术指标</string>
+    <string name="one_min">1分</string>
+    <string name="five_min">5分</string>
+    <string name="fifteen_min">15分</string>
+    <string name="thirty_min">30分</string>
+    <string name="one_hour">1小时</string>
+    <string name="two_hour">2小时</string>
+    <string name="four_hour">4小时</string>
+    <string name="six_hour">6小时</string>
+    <string name="twelve_hour">12小时</string>
+    <string name="one_day">1日</string>
+    <string name="three_day">3日</string>
+    <string name="one_week">一周</string>
+
+    <string name="open">开</string>
+    <string name="close">收</string>
+    <string name="region">幅</string>
+    <string name="vol">量</string>
+    <string name="high">高</string>
+    <string name="low">低</string>
+</resources>
