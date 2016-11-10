@@ -16,6 +16,7 @@ dependencies {
 	        compile 'com.github.zhangliangzs:KDemo:1.0.0'
 	}
   
+<<<<<<< HEAD
 
 
 项目应用：
@@ -120,5 +121,7 @@ private List<MarketChartData> marketChartDataLists = new ArrayList<MarketChartDa
 
 如果有疑问请加QQ：1179980507，一起完善和做好这个控件
 
+=======
+>>>>>>> 4943ea8058fa1d099241e97e4bca29b254272b7e
   效果如下图：
   
