@@ -120,6 +120,9 @@ private List<MarketChartData> marketChartDataLists = new ArrayList<MarketChartDa
 
 如果有疑问请加QQ：1179980507，一起完善和做好这个控件
 
+IOS版地址：
+https://github.com/zhiquan911/CHKLineChart
+
 
   效果如下图：
   
