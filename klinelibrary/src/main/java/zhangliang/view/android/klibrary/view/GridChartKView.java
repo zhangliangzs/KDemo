@@ -22,8 +22,6 @@ import zhangliang.view.android.klibrary.R;
  * QQ:1179980507
  */
 public class GridChartKView extends View {
-
-
 	// ////////////默认值////////////////
 	/** 默认背景色 */
 	public static final int DEFAULT_BACKGROUD = 0x090A0B;
