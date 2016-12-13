@@ -46,6 +46,9 @@ public class RSV {
                 if (high != low) {
                     rs = (close - low) / (high - low) * 100;
                     r.add(rs);
+                }else
+                {
+                    r.add(0.00);
                 }
             }
             for (int i = r.size() - 1; i >= 0; i--) {

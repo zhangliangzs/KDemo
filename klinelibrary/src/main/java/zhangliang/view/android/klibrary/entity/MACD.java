@@ -50,7 +50,7 @@ public class MACD {
                     dEA = 0+dIF*(2/10);
                     mBAR = 0.0;
                 } else {
-                    dEA = dEA*0.8 + dIF*0.2;
+                    dEA = dEA*0.8 + dIF* 0.2;
                     mBAR = 2*(dIF-dEA);
                 }
                 dEAs.add(dEA);
