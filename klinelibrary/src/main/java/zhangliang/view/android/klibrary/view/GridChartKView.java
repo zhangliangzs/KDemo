@@ -31,7 +31,8 @@ public class GridChartKView extends View {
 	/** 默认字体大小 **/
 	public float DEFAULT_AXIS_TITLE_SIZE =10;
 
-
+	/** 设置横竖屏切换 **/
+	//public boolean isVertical= false;
 	/** 默认字体颜色 **/
 	public static  int DEFAULT_AXIS_TITLE_COLOR = 0x78797A;
 	/** 默认点击xy选择框颜色 **/
@@ -219,10 +220,20 @@ public class GridChartKView extends View {
 
 		int viewHeight = getHeight();
 		int viewWidth = getWidth();
-		//经度
-		longitudeSpacing = (viewWidth - DEFAULT_AXIS_MARGIN_RIGHT-2)/DEFAULT_LOGITUDE_NUM;
-		//维度#####4-8
-		latitudeSpacing =(viewHeight - TITLE_HEIGHT*9)/(DEFAULT_UPER_LATITUDE_NUM+DEFAULT_LOWER_LATITUDE_NUM+DEFAULT_MIDDLE_LATITUDE_NUM);
+		//if(isVertical)
+		//{
+			//经度
+			longitudeSpacing = (viewWidth - DEFAULT_AXIS_MARGIN_RIGHT-2)/DEFAULT_LOGITUDE_NUM;
+			//维度#####4-8
+			latitudeSpacing =(viewHeight - TITLE_HEIGHT*9)/(DEFAULT_UPER_LATITUDE_NUM+DEFAULT_LOWER_LATITUDE_NUM+DEFAULT_MIDDLE_LATITUDE_NUM);
+		/*}else
+		{
+			//经度
+			longitudeSpacing = (viewHeight - DEFAULT_AXIS_MARGIN_RIGHT-2)/DEFAULT_LOGITUDE_NUM;
+			//维度#####4-8
+			latitudeSpacing =( viewWidth- TITLE_HEIGHT*9)/(DEFAULT_UPER_LATITUDE_NUM+DEFAULT_LOWER_LATITUDE_NUM+DEFAULT_MIDDLE_LATITUDE_NUM);
+		}*/
+
 
 		mUperChartHeight = DEFAULT_UPER_LATITUDE_NUM*latitudeSpacing;
 		mMiddleChartHeight = DEFAULT_MIDDLE_LATITUDE_NUM*latitudeSpacing;
@@ -238,8 +249,16 @@ public class GridChartKView extends View {
 		LOWER_CHART_TOP =MIDDLE_CHART_TOP+mMiddleChartHeight+TITLE_HEIGHT;
 		// 绘制边框
 		drawBorders(canvas, viewHeight, viewWidth);
-		// 绘制纬线
-		drawLatitudes(canvas, viewWidth, latitudeSpacing);
+		//if(isVertical)
+		//{
+			// 绘制纬线
+			drawLatitudes(canvas, viewWidth, latitudeSpacing);
+		/*}else
+		{
+			// 绘制纬线
+			drawLatitudes(canvas, viewHeight, latitudeSpacing);
+		}
+*/
 		// 绘制经线
 		drawLongitudes(canvas,longitudeSpacing);
 
@@ -382,6 +401,8 @@ public class GridChartKView extends View {
 	 * @param canvas
 	 */
 	private void drawLongitudes(Canvas canvas, float longitudeSpacing) {
+		if(axisXTitles==null)
+			return;
 		Paint paint = new Paint();
 		paint.setColor(mLongiLatitudeColor);
 		paint.setPathEffect(mDashEffect);
@@ -392,11 +413,11 @@ public class GridChartKView extends View {
 		paintAxis.setColor(mAxisColor);
 		paintAxis.setTextSize(DEFAULT_AXIS_TITLE_SIZE);
 
-		for (int i = 1; i <= DEFAULT_LOGITUDE_NUM; i++) {
-		/*
+	/*	for (int i = 1; i <= DEFAULT_LOGITUDE_NUM; i++) {
+		*//*
 		经线掩藏
 		canvas.drawLine(longitudeSpacing * i, TITLE_HEIGHT, longitudeSpacing * i,
-					TITLE_HEIGHT+mUperChartHeight+UPER_CHART_MARGIN_BOTTOM+UPER_CHART_MARGIN_TOP, paint);*/
+					TITLE_HEIGHT+mUperChartHeight+UPER_CHART_MARGIN_BOTTOM+UPER_CHART_MARGIN_TOP, paint);*//*
 			if(axisXTitles!=null) {
 				try{
 
@@ -409,6 +430,13 @@ public class GridChartKView extends View {
 				}
 
 			}
+		}*/
+
+		for (int i = 0; i < axisXTitles.size(); i++) {
+			float tWidth = paint.measureText(axisXTitles.get(i));
+			// 绘制刻度
+			canvas.drawText(axisXTitles.get(i), super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT-longitudeSpacing * (i)-tWidth, TITLE_HEIGHT + mUperChartHeight +UPER_CHART_MARGIN_BOTTOM+UPER_CHART_MARGIN_TOP+DEFAULT_AXIS_TITLE_SIZE, paintAxis);
+
 		}
 
 	}

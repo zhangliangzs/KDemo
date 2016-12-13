@@ -138,6 +138,7 @@ public class KView extends GridChartKView {
     }
     @Override
     protected void onDraw(Canvas canvas) {
+        initShowDataNum();
         initAxisX();
         initAxisY();
         super.onDraw(canvas);
@@ -190,7 +191,8 @@ public class KView extends GridChartKView {
     @Override
     protected void drawWithFingerClick(Canvas canvas) {
         int index = getSelectedIndex();
-
+        if(super.getTouchPoint()==null)
+            return;
         try{
             float y = super.getTouchPoint().y;
             //纠正出界
@@ -270,7 +272,7 @@ public class KView extends GridChartKView {
                         postInvalidate();
                             return true;
                         }
-                    int mMoveNum = (int) Math.floor(Math.abs(horizontalSpacing) / mCandleWidth);
+                    int mMoveNum = (int) Math.abs(Math.floor(Math.abs(horizontalSpacing) / mCandleWidth));
                     if(mMoveNum==0)
                         mMoveNum=1;
 
@@ -341,6 +343,9 @@ public class KView extends GridChartKView {
         if (mShowDataNum < MIN_CANDLE_NUM) {
             mShowDataNum = MIN_CANDLE_NUM;
         }
+        if (mShowDataNum > mOHLCData.size()) {
+            mShowDataNum = mOHLCData.size();
+        }
 
     }
 
@@ -398,9 +403,13 @@ public class KView extends GridChartKView {
                 return;
             }
             List<String> TitleX = new ArrayList<String>();
-        try {
+
             if(null != mOHLCData){
-                float average = mShowDataNum / longtitudeNum;
+                for (int i = 0; i < longtitudeNum && mDataStartIndext + i < mOHLCData.size(); i++) {
+
+                    TitleX.add(String.valueOf(mOHLCData.get(i+ mDataStartIndext).getTime2()));
+                }
+             /*   float average = mShowDataNum / longtitudeNum;
                 average = Float.parseFloat(new DecimalFormat("00.00").format(average));
                 //�?��刻度
                 int index = 0;
@@ -413,11 +422,9 @@ public class KView extends GridChartKView {
                         TitleX.add(String.valueOf(mOHLCData.get(index+mDataStartIndext).getTime2()));
                 }
                 if(index+mDataStartIndext<mOHLCData.size())
-                    TitleX.add(String.valueOf(mOHLCData.get(index+mDataStartIndext).getTime2()));
+                    TitleX.add(String.valueOf(mOHLCData.get(index+mDataStartIndext).getTime2()));*/
             }
-        }catch (Exception e)
-        {
-        }
+
 
         super.setAxisXTitles(TitleX);
     }
@@ -549,7 +556,9 @@ public class KView extends GridChartKView {
 
     private void drawMACD(Canvas canvas)
     {
-
+        if (mOHLCData == null || mOHLCData.size() <= 0) {
+            return;
+        }
         float lowertop = LOWER_CHART_TOP + 1;
         float lowerHight = getLowerChartHeight();
         float viewWidth = getWidth()- super.DEFAULT_AXIS_MARGIN_RIGHT;
@@ -642,6 +651,9 @@ public class KView extends GridChartKView {
     }
 
     private void drawKDJ(Canvas canvas) {
+        if (mOHLCData == null || mOHLCData.size() <= 0) {
+            return;
+        }
         float lowertop = LOWER_CHART_TOP + 1;
         float lowerHight = getLowerChartHeight();
         float viewWidth = getWidth()- super.DEFAULT_AXIS_MARGIN_RIGHT;
@@ -688,10 +700,10 @@ public class KView extends GridChartKView {
             d = (float) (zero - Ds.get(i) * rate);
             j = (float) (zero - Js.get(i) * rate);
 
-            canvas.drawText(new DecimalFormat("#.##").format(high), super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT, lowertop + DEFAULT_AXIS_TITLE_SIZE - 2, textPaint);
-            canvas.drawText(new DecimalFormat("#.##").format(50),   super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT, lowertop + lowerHight / 2 + DEFAULT_AXIS_TITLE_SIZE, textPaint);
-            canvas.drawText(new DecimalFormat("#.##").format(low),  super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT, lowertop + lowerHight, textPaint);
         }
+        canvas.drawText(new DecimalFormat("#.##").format(high), super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT, lowertop + DEFAULT_AXIS_TITLE_SIZE - 2, textPaint);
+        canvas.drawText(new DecimalFormat("#.##").format(50),   super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT, lowertop + lowerHight / 2 + DEFAULT_AXIS_TITLE_SIZE, textPaint);
+        canvas.drawText(new DecimalFormat("#.##").format(low),  super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT, lowertop + lowerHight, textPaint);
     }
 
 
@@ -791,24 +803,32 @@ public void setKDJShow()
 
         return MA5Values;
     }
-
-    private void setCurrentData() {
-
+    private void initShowDataNum()
+    {
+        if (mOHLCData == null || mOHLCData.size() <= 0) {
+            return;
+        }
         if (mShowDataNum > mOHLCData.size()) {
             mShowDataNum = mOHLCData.size();
         }
         if (MIN_CANDLE_NUM > mOHLCData.size()) {
-           // mShowDataNum = MIN_CANDLE_NUM;
+            // mShowDataNum = MIN_CANDLE_NUM;
             mShowDataNum = mOHLCData.size();
         }
 
+    }
+    private void setCurrentData() {
+
+        initShowDataNum();
         setMaxMinPrice();
     }
 
 
     private void setMaxMinPrice()
     {
-
+        if (mOHLCData == null || mOHLCData.size() <= 0||mDataStartIndext<0) {
+            return;
+        }
         try {
             if(mOHLCData.size()==0)
                 return;
