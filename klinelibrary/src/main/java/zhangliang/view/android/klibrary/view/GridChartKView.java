@@ -13,6 +13,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import zhangliang.view.android.klibrary.R;
@@ -22,15 +23,14 @@ import zhangliang.view.android.klibrary.R;
  * QQ:1179980507
  */
 public class GridChartKView extends View {
-	// ////////////默认值////////////////
+// ////////////默认值////////////////
 	/** 默认背景色 */
 	public static final int DEFAULT_BACKGROUD = 0x090A0B;
 
 	/** 默认字体大小 **/
 	public float DEFAULT_AXIS_TITLE_SIZE =10;
 
-	/** 设置横竖屏切换 **/
-	//public boolean isVertical= false;
+
 	/** 默认字体颜色 **/
 	public static  int DEFAULT_AXIS_TITLE_COLOR = 0x78797A;
 	/** 默认点击xy选择框颜色 **/
@@ -128,12 +128,19 @@ public class GridChartKView extends View {
 	/** 下表高度 */
 	public float mLowerChartHeight;
 
+	/** 下表TabIndex */
+	private int mTabIndex;
+
 	//经线间隔度
 	private float longitudeSpacing;
 	//维线间隔度
 	private float latitudeSpacing;
 	private Context mContext;
 
+
+
+
+	private OnTabClickListener mOnTabClickListener;
 
 	public GridChartKView(Context context) {
 		super(context);
@@ -161,7 +168,8 @@ public class GridChartKView extends View {
 		initSize();
 		mDashEffect = DEFAULT_DASH_EFFECT;
 		mBorderColor = DEFAULT_LONGI_LAITUDE_COLOR;
-
+		mTabIndex = 0;
+		mOnTabClickListener = null;
 	}
 
 	public void initSize()
@@ -218,20 +226,10 @@ public class GridChartKView extends View {
 
 		int viewHeight = getHeight();
 		int viewWidth = getWidth();
-		//if(isVertical)
-		//{
-			//经度
-			longitudeSpacing = (viewWidth - DEFAULT_AXIS_MARGIN_RIGHT-2)/DEFAULT_LOGITUDE_NUM;
-			//维度#####4-8
-			latitudeSpacing =(viewHeight - TITLE_HEIGHT*9)/(DEFAULT_UPER_LATITUDE_NUM+DEFAULT_LOWER_LATITUDE_NUM+DEFAULT_MIDDLE_LATITUDE_NUM);
-		/*}else
-		{
-			//经度
-			longitudeSpacing = (viewHeight - DEFAULT_AXIS_MARGIN_RIGHT-2)/DEFAULT_LOGITUDE_NUM;
-			//维度#####4-8
-			latitudeSpacing =( viewWidth- TITLE_HEIGHT*9)/(DEFAULT_UPER_LATITUDE_NUM+DEFAULT_LOWER_LATITUDE_NUM+DEFAULT_MIDDLE_LATITUDE_NUM);
-		}*/
-
+		//经度
+		longitudeSpacing = (viewWidth - DEFAULT_AXIS_MARGIN_RIGHT-2)/DEFAULT_LOGITUDE_NUM;
+		//维度#####4-8
+		latitudeSpacing =(viewHeight - TITLE_HEIGHT*9)/(DEFAULT_UPER_LATITUDE_NUM+DEFAULT_LOWER_LATITUDE_NUM+DEFAULT_MIDDLE_LATITUDE_NUM);
 
 		mUperChartHeight = DEFAULT_UPER_LATITUDE_NUM*latitudeSpacing;
 		mMiddleChartHeight = DEFAULT_MIDDLE_LATITUDE_NUM*latitudeSpacing;
@@ -247,21 +245,10 @@ public class GridChartKView extends View {
 		LOWER_CHART_TOP =MIDDLE_CHART_TOP+mMiddleChartHeight+TITLE_HEIGHT;
 		// 绘制边框
 		drawBorders(canvas, viewHeight, viewWidth);
-		//if(isVertical)
-		//{
-			// 绘制纬线
-			drawLatitudes(canvas, viewWidth, latitudeSpacing);
-		/*}else
-		{
-			// 绘制纬线
-			drawLatitudes(canvas, viewHeight, latitudeSpacing);
-		}
-*/
+		// 绘制纬线
+		drawLatitudes(canvas, viewWidth, latitudeSpacing);
 		// 绘制经线
 		drawLongitudes(canvas,longitudeSpacing);
-
-		//十字行
-		//drawWithFingerClick(canvas);
 	}
 
 	@Override
@@ -283,9 +270,19 @@ public class GridChartKView extends View {
 				touchPoint = point;
 				super.invalidate();
 
+
+			} else if (event.getPointerCount() == 2) {
 			}
 		}
 		return super.onTouchEvent(event);
+	}
+
+	public void setOnTabClickListener(OnTabClickListener onTabClickListener) {
+		mOnTabClickListener = onTabClickListener;
+	}
+
+	public interface OnTabClickListener {
+		void onTabClick(int indext);
 	}
 
 	/**
@@ -353,9 +350,8 @@ public class GridChartKView extends View {
 		path.lineTo(viewWidth-DEFAULT_AXIS_MARGIN_RIGHT,LOWER_CHART_TOP-TITLE_HEIGHT);
 		canvas.drawPath(path, paint);
 
-
 		//刻度颜色
-	 paint.setColor(mLongiLatitudeColor);
+		paint.setColor(mLongiLatitudeColor);
 		for (int i = 0; i <DEFAULT_UPER_LATITUDE_NUM; i++) {
 			//线
 
@@ -381,6 +377,7 @@ public class GridChartKView extends View {
 			path.moveTo(0,MIDDLE_CHART_TOP+latitudeSpacing * i);
 			path.lineTo(viewWidth-DEFAULT_AXIS_MARGIN_RIGHT, MIDDLE_CHART_TOP+latitudeSpacing * i);
 			canvas.drawPath(path, paint);
+
 		}
 
 		for (int i = 0; i <= DEFAULT_LOWER_LATITUDE_NUM; i++) {
@@ -410,25 +407,6 @@ public class GridChartKView extends View {
 		Paint paintAxis = new Paint();
 		paintAxis.setColor(mAxisColor);
 		paintAxis.setTextSize(DEFAULT_AXIS_TITLE_SIZE);
-
-	/*	for (int i = 1; i <= DEFAULT_LOGITUDE_NUM; i++) {
-		*//*
-		经线掩藏
-		canvas.drawLine(longitudeSpacing * i, TITLE_HEIGHT, longitudeSpacing * i,
-					TITLE_HEIGHT+mUperChartHeight+UPER_CHART_MARGIN_BOTTOM+UPER_CHART_MARGIN_TOP, paint);*//*
-			if(axisXTitles!=null) {
-				try{
-
-					float tWidth = paint.measureText(axisXTitles.get(i-1));
-					// 绘制刻度
-					canvas.drawText(axisXTitles.get(i-1), super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT-longitudeSpacing * (i-1)-tWidth, TITLE_HEIGHT + mUperChartHeight +UPER_CHART_MARGIN_BOTTOM+UPER_CHART_MARGIN_TOP+DEFAULT_AXIS_TITLE_SIZE, paintAxis);
-
-				}catch (Exception e){
-
-				}
-
-			}
-		}*/
 
 		for (int i = 0; i < axisXTitles.size(); i++) {
 			float tWidth = paint.measureText(axisXTitles.get(i));
@@ -608,12 +586,12 @@ public class GridChartKView extends View {
 		// 垂直线高度
 		float lineVLength = getHeight() - 2f;
 		if(!getAxisXClickTitle().equals(""))
-		drawAlphaXTextBox(getAxisXClickTitle(),canvas);
+			drawAlphaXTextBox(getAxisXClickTitle(),canvas);
 		if(!getAxisYClickTitle().equals(""))
-		drawAlphaYTextBox(getAxisYClickTitle(),canvas);
-	//	drawAlphaTopTextBox("当日行情------开:2926.48  高:2930.00 低:2930.47 收:2927.71",canvas);
-	//	drawAlphaMiddleTextBox("量:483.343  MA5:888 MA10:33333",canvas);
-	//	drawAlphaBottomTextBox("MACD(12,26,9) DIF:0.10 DEA:0.00 MACD:0.19",canvas);
+			drawAlphaYTextBox(getAxisYClickTitle(),canvas);
+		//	drawAlphaTopTextBox("当日行情------开:2926.48  高:2930.00 低:2930.47 收:2927.71",canvas);
+		//	drawAlphaMiddleTextBox("量:483.343  MA5:888 MA10:33333",canvas);
+		//	drawAlphaBottomTextBox("MACD(12,26,9) DIF:0.10 DEA:0.00 MACD:0.19",canvas);
 
 		if (touchPoint!=null) {
 			// 显示纵线
@@ -738,11 +716,26 @@ public class GridChartKView extends View {
 		canvas.drawText(content, 2f, LOWER_CHART_TOP-2f, mPaintBoxLine);
 	}
 
+
+	// 获得来自其他图表�??知
+	public void notifyEvent(GridChartKView chart) {
+		PointF point = chart.getTouchPoint();
+		//如果没有�?中点
+		if(null != point){
+			// 获取点击坐�?
+			clickPostX = point.x;
+			clickPostY = point.y;
+		}
+		//设置当前控件�?��摸点
+		touchPoint = new PointF(clickPostX , clickPostY);
+		super.invalidate();
+	}
+
 	public PointF getTouchPoint() {
 		return touchPoint;
 	}
 
 	public void setTouchPoint(PointF p) {
-		 this.touchPoint=p;
+		this.touchPoint=p;
 	}
 }
