@@ -127,4 +127,6 @@ https://github.com/zhiquan911/CHKLineChart
 
 
   效果如下图：
+![image](https://github.com/zhangliangzs/KDemo/blob/master/photo/deviceetc.png)
+
   
