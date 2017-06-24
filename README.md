@@ -1,6 +1,8 @@
 # KDemo
 专业k线图表组件，支持JDK,MACD,MA，VOL等指标，后续指标陆续更新
 
+![image](https://github.com/zhangliangzs/KDemo/blob/master/photo/device.png)
+
 android studio开发工具中：
 第一步：在工程build.gradle中添加如下代码
 
@@ -125,4 +127,6 @@ https://github.com/zhiquan911/CHKLineChart
 
 
   效果如下图：
+![image](https://github.com/zhangliangzs/KDemo/blob/master/photo/deviceetcpng.png)
+
   
