@@ -3,6 +3,8 @@ package zhangliang.view.android.klibrary.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import zhangliang.view.android.klibrary.entity.EMAEntity;
+
 /**
  * Created by zhangliang on 16/11/5.
  * QQ:1179980507
@@ -50,7 +52,7 @@ public class MACD {
                     dEA = 0+dIF*(2/10);
                     mBAR = 0.0;
                 } else {
-                    dEA = dEA*0.8 + dIF* 0.2;
+                    dEA = dEA*0.8 + dIF*0.2;
                     mBAR = 2*(dIF-dEA);
                 }
                 dEAs.add(dEA);

@@ -1,12 +1,14 @@
 package zhangliang.view.android.klibrary.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by zhangliang on 16/11/5.
  * QQ:1179980507
  */
+
+import java.util.ArrayList;
+import java.util.List;
+
+
 public class KDJ {
 	private ArrayList<Double> Ks;
 	private ArrayList<Double> Ds;

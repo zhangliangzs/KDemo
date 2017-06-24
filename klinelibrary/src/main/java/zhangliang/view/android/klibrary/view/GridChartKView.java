@@ -472,7 +472,9 @@ public class GridChartKView extends View {
 	public float getUperChartHeight() {
 		return mUperChartHeight;
 	}
-
+	public float getMiddleChartHeight() {
+		return mMiddleChartHeight;
+	}
 	public void setUperChartHeight(float UperChartHeight) {
 		this.mUperChartHeight = UperChartHeight;
 	}

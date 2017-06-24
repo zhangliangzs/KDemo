@@ -1,5 +1,6 @@
 package zhangliang.view.android.klibrary.view;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -8,7 +9,12 @@ import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
+import android.view.ViewConfiguration;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -63,6 +69,10 @@ public class KView extends GridChartKView {
      * 成交量最大值
      */
     private double mMaxVol;
+    /**
+     * 成交量最大值
+     */
+    private double mMinVol;
 
     //记录最小值
     private int minIndex;
@@ -146,6 +156,12 @@ public class KView extends GridChartKView {
     private KDJ mKDJData;
     private Resources res;
 
+
+    private VelocityTracker mVelocityTracker;
+    private int mMinVelocity;
+    private int mMaxVelocity;
+    private int mPointerId;
+
     public KView(Context context) {
         super(context);
         mConext = context;
@@ -158,6 +174,8 @@ public class KView extends GridChartKView {
         mConext = context;
         res = mConext.getResources();
         init();
+        mMaxVelocity = ViewConfiguration.get(mConext).getScaledMaximumFlingVelocity();
+        mMinVelocity = ViewConfiguration.get(mConext).getScaledMinimumFlingVelocity();
     }
 
     public KView(Context context, AttributeSet attrs, int defStyle) {
@@ -190,7 +208,7 @@ public class KView extends GridChartKView {
         drawUpperRegion(canvas);
         drawSticks(canvas);
         drawMA(canvas);
-
+        drawVMA(canvas);
         if (mShowMACD) {
             drawMACD(canvas);
         }
@@ -231,6 +249,29 @@ public class KView extends GridChartKView {
         canvas.drawText(ma30text, 2f + tWidth + width, 2 * TITLE_HEIGHT - 2f, ma30);
     }
 
+    /**
+     * ma5,ma10,ma30均线
+     */
+
+    public void drawVMAText(List<MALineEntity> VMALineData, Canvas canvas, int index, int k5, int k10) {
+        String ma5text = "VMA5:" + new DecimalFormat("#.##").format(VMALineData.get(0).getLineData().get(index));
+        String ma10text = "VMA10:" + new DecimalFormat("#.##").format(VMALineData.get(1).getLineData().get(index));
+        Paint ma5 = new Paint();
+        ma5.setColor(k5);
+        ma5.setAntiAlias(true);
+        ma5.setTextSize(DEFAULT_AXIS_TITLE_SIZE);
+        canvas.drawText(ma5text, 2f, MIDDLE_CHART_TOP - 2f, ma5);
+
+
+        float tWidth = ma5.measureText(ma5text);
+        Paint ma10 = new Paint();
+        ma10.setColor(k10);
+        ma10.setAntiAlias(true);
+        ma10.setTextSize(DEFAULT_AXIS_TITLE_SIZE);
+        canvas.drawText(ma10text, 2f + tWidth, MIDDLE_CHART_TOP - 2f, ma10);
+
+    }
+
     /*
      * 单点击事件
      */
@@ -262,7 +303,8 @@ public class KView extends GridChartKView {
         super.drawAlphaTopTextBox(res.getString(R.string.open) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getOpenPrice() + res.getString(R.string.high) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getHighPrice() +
                 res.getString(R.string.low) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getLowPrice() + res.getString(R.string.close) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getClosePrice() + res.getString(R.string.vol) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getVol(), canvas);
         drawMAText(MALineData, canvas, mShowDataNum - 1 - index + mDataStartIndext, kline5dayline, kline10dayline, kline30dayline);
-        drawAlphaMiddleTextBox(res.getString(R.string.vol) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getVol(), canvas);
+        drawVMAText(MAVLineData, canvas, mShowDataNum - 1 - index + mDataStartIndext, kline5dayline, kline10dayline);
+      //  drawAlphaMiddleTextBox(res.getString(R.string.vol) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getVol(), canvas);
         if (mMACDData != null && mShowMACD) {
             drawAlphaBottomTextBox("MACD(12,26,9) DIF:" + new DecimalFormat("#.##").format(mMACDData.getDIF().get(mShowDataNum - 1 - index + mDataStartIndext)) + " DEA:" + new DecimalFormat("#.##").format(mMACDData.getDEA().get(mShowDataNum - 1 - index + mDataStartIndext))
                     + "MACD:" + new DecimalFormat("#.##").format(mMACDData.getBAR().get(mShowDataNum - 1 - index + mDataStartIndext)), canvas);
@@ -291,39 +333,20 @@ public class KView extends GridChartKView {
         return index;
     }
 
-    //声明一个坐标点
-    private PointF startPoint;
-    //缩放时初始的距离
-    private float startDistance;
-    //拖拉的标记
-    private static final int DRAG = 1;
-    //缩放的标记
-    private static final int ZOOM = 2;
-    //标识记录
-    private int mode;
-    //缩放的中间点
-    private PointF midPoint;
-
-    public static float distance(MotionEvent event) {
-        float dx = event.getX(1) - event.getX(0);
-        float dy = event.getY(1) - event.getY(0);
-
-        return (float) Math.sqrt(dx * dx + dy * dy);
-    }
-
-    public static PointF mid(MotionEvent event) {
-        float x = (event.getX(1) - event.getX(0)) / 2;
-        float y = (event.getY(1) - event.getY(0)) / 2;
-        return new PointF(x, y);
-    }
 
     /*版本2*/
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         PointF point = null;
         if (event.getPointerCount() == 1) {
+
+            acquireVelocityTracker(event);
+
             switch (event.getAction() & MotionEvent.ACTION_MASK) {
                 case MotionEvent.ACTION_DOWN:
+                    //求第一个触点的id， 此时可能有多个触点，但至少一个
+                    mPointerId = event.getPointerId(0);
+
                     mStartX = event.getX();
                     mStartY = event.getY();
                     break;
@@ -338,12 +361,11 @@ public class KView extends GridChartKView {
                         postInvalidate();
                         return true;
                     }
+                  //  startMotion(event,horizontalSpacing);
                     int mMoveNum = (int) Math.abs(Math.floor(Math.abs(horizontalSpacing) / mCandleWidth));
                     if (mMoveNum == 0)
                         mMoveNum = 1;
 
-                    mStartX = event.getX();
-                    mStartY = event.getY();
                     if (horizontalSpacing < 0) {
                         mDataStartIndext = mDataStartIndext - mMoveNum;
                         if (mDataStartIndext < 0) {
@@ -355,10 +377,25 @@ public class KView extends GridChartKView {
                             mDataStartIndext = mOHLCData.size() - mShowDataNum;
                         }
                     }
-                    point = new PointF(mStartX, mStartY);
-                    super.setTouchPoint(point);
+                    mStartX = event.getX();
+                    mStartY = event.getY();
+                  /*  point = new PointF(mStartX, mStartY);
+                    super.setTouchPoint(point);*/
                     setCurrentData();
                     postInvalidate();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    //求伪瞬时速度
+                    mVelocityTracker.computeCurrentVelocity(1000, mMaxVelocity);
+                    final float velocityX = mVelocityTracker.getXVelocity(mPointerId);
+                    Log.e("ACTION_UP velocityX",velocityX+"");
+                    Log.e("mMinVelocity ",mMinVelocity+"");
+                    Log.e("mMaxVelocity ",mMaxVelocity+"");
+                        if(Math.abs(velocityX)<800)
+                            return true;
+                    startMotion(event,velocityX);
+                    releaseVelocityTracker();
+                    break;
             }
         } else if (event.getPointerCount() == 2) {
             switch (event.getAction() & MotionEvent.ACTION_MASK) {
@@ -386,6 +423,69 @@ public class KView extends GridChartKView {
         }
         return true;
     }
+
+    private void startMotion(final MotionEvent event,final float horizontalSpacing) {
+        ValueAnimator animator = ValueAnimator.ofFloat(horizontalSpacing,0f);
+        animator.setDuration(500).setRepeatCount(0);
+        animator.setInterpolator(new DecelerateInterpolator());//使用线性插值器
+        animator.start();
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+                                       @Override
+                                       public void onAnimationUpdate(ValueAnimator animation) {
+                                           float fraction = (float) animation.getAnimatedValue();
+
+                                           int mMoveNum = (int) Math.abs(Math.floor(Math.abs(fraction/10) / mCandleWidth));
+                                           if (mMoveNum == 0)
+                                               mMoveNum = 1;
+
+                                           if (fraction < 0) {
+                                               mDataStartIndext = mDataStartIndext - mMoveNum;
+                                               if (mDataStartIndext < 0) {
+                                                   mDataStartIndext = 0;
+                                               }
+                                           } else if (fraction > 0) {
+                                               mDataStartIndext = mDataStartIndext + mMoveNum;
+                                               if (mDataStartIndext + mShowDataNum > mOHLCData.size()) {
+                                                   mDataStartIndext = mOHLCData.size() - mShowDataNum;
+                                               }
+                                           }
+                                           Log.e("mMoveNum",mMoveNum+"");
+                                           setCurrentData();
+                                           postInvalidate();
+                                       }
+                                   }
+
+        );
+    }
+    /**
+     *
+     * @param event 向VelocityTracker添加MotionEvent
+     *
+     * @see android.view.VelocityTracker#obtain()
+     * @see android.view.VelocityTracker#addMovement(MotionEvent)
+     */
+    private void acquireVelocityTracker(final MotionEvent event) {
+        if(null == mVelocityTracker) {
+            mVelocityTracker = VelocityTracker.obtain();
+        }
+        mVelocityTracker.addMovement(event);
+    }
+
+    /**
+     * 释放VelocityTracker
+     *
+     * @see android.view.VelocityTracker#clear()
+     * @see android.view.VelocityTracker#recycle()
+     */
+    private void releaseVelocityTracker() {
+        if(null != mVelocityTracker) {
+            mVelocityTracker.clear();
+            mVelocityTracker.recycle();
+            mVelocityTracker = null;
+        }
+    }
+
 
     //缩小
     private void zoomIn(int move) {
@@ -651,7 +751,9 @@ public class KView extends GridChartKView {
                 + lowerHight / 2 + DEFAULT_AXIS_TITLE_SIZE, textPaint);
         canvas.drawText(new DecimalFormat("#.##").format(low), super.getWidth() - DEFAULT_AXIS_MARGIN_RIGHT, lowertop + lowerHight,
                 textPaint);
+        // } catch (Exception e) {
 
+        //}
     }
 
     private void drawKDJ(Canvas canvas) {
@@ -756,6 +858,7 @@ public class KView extends GridChartKView {
         canvas.drawText(new DecimalFormat("#.##").format((mMaxVol) / 2), super.getWidth() - DEFAULT_AXIS_MARGIN_RIGHT - 1, super.LOWER_CHART_TOP - super.getTitleHeight() - super.mMiddleChartHeight / 2, textPaint);
         canvas.drawText(new DecimalFormat("#.##").format(0), super.getWidth() - DEFAULT_AXIS_MARGIN_RIGHT - 1, super.LOWER_CHART_TOP - super.getTitleHeight(), textPaint);
 
+
     }
 
     public void setKDJShow() {
@@ -816,6 +919,42 @@ public class KView extends GridChartKView {
             }
         }
     }
+    private void drawVMA(Canvas canvas) {
+        if (MAVLineData == null || MAVLineData.size() < 0)
+            return;
+
+        double rate = (getMiddleChartHeight()) / (mMaxVol - mMinVol);
+        // 绘制上部曲线图及上部分MA值
+        for (int j = 0; j < MAVLineData.size(); j++) {
+            MALineEntity lineEntity = MAVLineData.get(j);
+
+            float startX = 0;
+            float startY = 0;
+            Paint paint = new Paint();
+            paint.setStrokeWidth(2);
+            paint.setColor(lineEntity.getLineColor());
+            paint.setTextSize(DEFAULT_AXIS_TITLE_SIZE);
+
+            for (int i = 0; i < mShowDataNum
+                    && mDataStartIndext + i < lineEntity.getLineData().size(); i++) {
+                if (i != 0) {
+
+                    canvas.drawLine(
+                            startX,
+                            startY < MIDDLE_CHART_TOP -  TITLE_HEIGHT ? MIDDLE_CHART_TOP -  TITLE_HEIGHT : startY,
+                            (float) (super.getWidth() - super.DEFAULT_AXIS_MARGIN_RIGHT - 2 - mCandleWidth * i - mCandleWidth * 0.5f),
+                            (float) (((mMaxVol - lineEntity.getLineData().get(mDataStartIndext + i)) * rate)  + MIDDLE_CHART_TOP) < MIDDLE_CHART_TOP -  TITLE_HEIGHT ? MIDDLE_CHART_TOP -  TITLE_HEIGHT : (float) ((mMaxVol - lineEntity.getLineData().get(mDataStartIndext + i)) * rate) + MIDDLE_CHART_TOP ,
+                            paint);
+
+
+                }
+                startX = (float) (super.getWidth() - super.DEFAULT_AXIS_MARGIN_RIGHT - 2 - mCandleWidth * i - mCandleWidth * 0.5f);
+                startY = (float) ((mMaxVol - lineEntity.getLineData().get(mDataStartIndext + i)) * rate)  + MIDDLE_CHART_TOP;
+
+
+            }
+        }
+    }
 
     private void initShowDataNum()
     {
@@ -846,6 +985,7 @@ public class KView extends GridChartKView {
         mMinPrice = mOHLCData.get(mDataStartIndext).getLowPrice();
         mMaxPrice = mOHLCData.get(mDataStartIndext).getHighPrice();
         mMaxVol = mOHLCData.get(mDataStartIndext).getVol();
+        mMinVol = mOHLCData.get(mDataStartIndext).getVol();
         minIndex = mDataStartIndext;
         maxIndex = mDataStartIndext;
 
@@ -860,7 +1000,16 @@ public class KView extends GridChartKView {
                 mMaxPrice = entity.getHighPrice();
                 maxIndex = i + mDataStartIndext;
             }
-            mMaxVol = mMaxVol > entity.getVol() ? mMaxVol : entity.getVol();
+
+
+            if (mMaxVol < entity.getVol()) {
+                mMaxVol = entity.getVol();
+            }
+            if (mMinVol > entity.getVol()) {
+                mMinVol = entity.getVol();
+            }
+
+          //  mMaxVol = mMaxVol > entity.getVol() ? mMaxVol : entity.getVol();
         }
 
     }
@@ -880,6 +1029,7 @@ public class KView extends GridChartKView {
             addData(e);
         }
         initMALineData();
+        initMAStickLineData();
         // mMACDData = new MACDEntity(mOHLCData);
         mMACDData = new MACD(mOHLCData);
         mKDJData = new KDJ(mOHLCData);
@@ -939,23 +1089,17 @@ public class KView extends GridChartKView {
         //计算5日均线
         MALineEntity VMA5 = new MALineEntity();
         VMA5.setTitle("MA5");
-        VMA5.setLineColor(Color.RED);
-        VMA5.setLineData(initVMA(5));
+        VMA5.setLineColor(kline5dayline);
+        VMA5.setLineData(initVMA(mOHLCData,5));
         MAVLineData.add(VMA5);
 
         //计算10日均线
         MALineEntity VMA10 = new MALineEntity();
         VMA10.setTitle("MA10");
-        VMA10.setLineColor(Color.WHITE);
-        VMA10.setLineData(initVMA(10));
+        VMA10.setLineColor(kline10dayline);
+        VMA10.setLineData(initVMA(mOHLCData,10));
         MAVLineData.add(VMA10);
 
-        //计算25日均线
-        MALineEntity VMA20 = new MALineEntity();
-        VMA20.setTitle("MA20");
-        VMA20.setLineColor(Color.GREEN);
-        VMA20.setLineData(initVMA(20));
-        MAVLineData.add(VMA20);
 
     }
 
@@ -974,14 +1118,25 @@ public class KView extends GridChartKView {
 
         Double sum = 0.0;
         Double avg = 0.0;
+        java.text.DecimalFormat   df =new   java.text.DecimalFormat("#.00");
         for (int i = entityList.size() - 1; i >= 0; i--) {
             Double close = entityList.get(i).getClosePrice();
             if (entityList.size() - i < days) {
                 sum = sum + close;
-                avg = sum / (entityList.size() - i);
+                int d=entityList.size() - i;
+                avg = sum / d;
+                avg=Double.parseDouble(df.format(avg));
+
             } else {
-                sum = close + avg * (days - 1);
+                sum = 0.0;
+                for(int j=0;j<days;j++)
+                {
+                    sum =sum+entityList.get(i+j).getClosePrice();
+                }
+
                 avg = sum / days;
+                avg=Double.parseDouble(df.format(avg));
+
             }
             MAValues.add(avg);
         }
@@ -993,35 +1148,42 @@ public class KView extends GridChartKView {
         return result;
     }
 
-    private List<Double> initVMA(int days) {
+    private List<Double> initVMA(List<MarketChartData> entityList,int days) {
 
-        if (mOHLCData.size() <= 0 || mOHLCData == null) {
+        if (days < 2 || entityList == null || entityList.size() <= 0) {
             return null;
         }
-
-        List<Double> MA5Values = new ArrayList<Double>();
+        List<Double> MAValues = new ArrayList<Double>();
 
         Double sum = 0.0;
         Double avg = 0.0;
+        java.text.DecimalFormat   df =new   java.text.DecimalFormat("#.00");
+        for (int i = entityList.size() - 1; i >= 0; i--) {
+            Double close = entityList.get(i).getVol();
+            if (entityList.size() - i < days) {
+                sum = sum + close;
+                int d=entityList.size() - i;
+                avg = sum / d;
+                avg=Double.parseDouble(df.format(avg));
 
-
-        for (int i = mOHLCData.size() - 1; i >= 0; i--) {
-            Double vol = mOHLCData.get(i).getVol();
-            if (mOHLCData.size() - i < days) {
-                sum = sum + vol;
-                avg = sum / (mOHLCData.size() - i);
             } else {
-                sum = vol + avg * (days - 1);
+                sum = 0.0;
+                for(int j=0;j<days;j++)
+                {
+                    sum =sum+entityList.get(i+j).getVol();
+                }
+
                 avg = sum / days;
+                avg=Double.parseDouble(df.format(avg));
+
             }
-            MA5Values.add(avg);
+            MAValues.add(avg);
         }
 
         List<Double> result = new ArrayList<Double>();
-        for (int j = MA5Values.size() - 1; j >= 0; j--) {
-            result.add(MA5Values.get(j));
+        for (int j = MAValues.size() - 1; j >= 0; j--) {
+            result.add(MAValues.get(j));
         }
-
         return result;
     }
 }
