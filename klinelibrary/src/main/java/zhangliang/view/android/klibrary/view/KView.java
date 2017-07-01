@@ -6,8 +6,10 @@ import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -38,6 +40,8 @@ public class KView extends GridChartKView {
      */
     private float mStartX;
     private float mStartY;
+
+    private float mCornerRadius=20f;
 
     /**
      * 默认Y轴字体颜色
@@ -80,7 +84,6 @@ public class KView extends GridChartKView {
     private int maxIndex;
 
     private float olddistance = 0f;
-    private float newdistance = 0f;
     private int count = 0;
 
     private boolean mShowMACD = false;
@@ -156,6 +159,29 @@ public class KView extends GridChartKView {
     private KDJ mKDJData;
     private Resources res;
 
+    private boolean isArrow = false;
+
+    //
+    private int maxValueTopColor = DEFAULT_AXIS_TITLE_COLOR;
+    private int minValueBottomColor= DEFAULT_AXIS_TITLE_COLOR;
+
+    public void setMaxValueTopColor(int color)
+    {
+        this.maxValueTopColor = color;
+    }
+
+
+    public void setMinValueBottomColor(int color)
+    {
+        this.minValueBottomColor = color;
+    }
+
+
+    public void setIsArrow(boolean arrow)
+    {
+        this.isArrow = arrow;
+    }
+
 
     private VelocityTracker mVelocityTracker;
     private int mMinVelocity;
@@ -184,6 +210,7 @@ public class KView extends GridChartKView {
         res = mConext.getResources();
         init();
     }
+
 
     private void init() {
         mShowDataNum = DEFAULT_CANDLE_NUM;
@@ -577,6 +604,8 @@ public class KView extends GridChartKView {
         super.setAxisYTitles(TitleY);
     }
 
+
+
     private void drawUpperRegion(Canvas canvas) {
         if (mOHLCData == null || mOHLCData.size() <= 0) {
             return;
@@ -630,39 +659,161 @@ public class KView extends GridChartKView {
                 float w = paint.measureText(maxPrice);
                 //左箭头
                 if ((i * mCandleWidth + mCandleWidth / 2) > (w + 50)) {
-                    canvas.drawLine(startX, high - super.getTitleHeight(), startX + 50, high - super.getTitleHeight(), paint);
-                    canvas.drawLine(startX, high - super.getTitleHeight(), startX + 20, high - super.getTitleHeight() - 20, paint);
-                    canvas.drawLine(startX, high - super.getTitleHeight(), startX + 20, high - super.getTitleHeight() + 20, paint);
-                    canvas.drawText(maxPrice, startX + 50, high - super.getTitleHeight() + rect.height() / 2, paint);
+
+                    if(isArrow)
+                    {
+                        canvas.drawLine(startX, high - super.getTitleHeight(), startX + 50, high - super.getTitleHeight(), paint);
+                        canvas.drawLine(startX, high - super.getTitleHeight(), startX + 20, high - super.getTitleHeight() - 20, paint);
+                        canvas.drawLine(startX, high - super.getTitleHeight(), startX + 20, high - super.getTitleHeight() + 20, paint);
+                        canvas.drawText(maxPrice, startX + 50, high - super.getTitleHeight() + rect.height() / 2, paint);
+                    }else
+                    {
+                        float leftr=startX+35;
+                       // float topr=high - super.getTitleHeight() - rect.height() / 2-10;
+                        float topr=high - super.getTitleHeight() - rect.height() ;
+                        float rightr=startX+65+w;
+                        float bottomr=high - super.getTitleHeight() + rect.height();
+                        drawRoundRect(canvas,leftr,topr,rightr,bottomr,maxValueTopColor);
+                        canvas.drawText(maxPrice, startX + 50, high - super.getTitleHeight() + rect.height() / 2, paint);
+
+                        //画三角
+                        Paint paint1 = new Paint();
+                        paint1.setColor(maxValueTopColor);
+                        paint1.setStrokeJoin(Paint.Join.ROUND);
+                        paint1.setStrokeWidth(2);              //线宽
+                        paint1.setStyle(Paint.Style.FILL);
+                        Path path=new Path();
+                        path.moveTo(startX,high);
+                        path.lineTo(leftr,bottomr-mCornerRadius);
+                        path.lineTo(leftr+mCornerRadius,bottomr);
+                        path.moveTo(startX,high);
+                        canvas.drawPath(path,paint1);
+                    }
+
                 } else {
-                    canvas.drawLine(startX, high - super.getTitleHeight(), startX - 50, high - super.getTitleHeight(), paint);
-                    canvas.drawLine(startX, high - super.getTitleHeight(), startX - 20, high - super.getTitleHeight() + 20, paint);
-                    canvas.drawLine(startX, high - super.getTitleHeight(), startX - 20, high - super.getTitleHeight() - 20, paint);
-                    canvas.drawText(maxPrice, startX - 50 - w, high - super.getTitleHeight() + rect.height() / 2, paint);
+
+
+                    if(isArrow)
+                    {
+                        canvas.drawLine(startX, high - super.getTitleHeight(), startX - 50, high - super.getTitleHeight(), paint);
+                        canvas.drawLine(startX, high - super.getTitleHeight(), startX - 20, high - super.getTitleHeight() + 20, paint);
+                        canvas.drawLine(startX, high - super.getTitleHeight(), startX - 20, high - super.getTitleHeight() - 20, paint);
+                        canvas.drawText(maxPrice, startX - 50 - w, high - super.getTitleHeight() + rect.height() / 2, paint);
+                    }else
+                    {
+                        float leftr=startX-65-w;
+                        float topr=high - super.getTitleHeight() - rect.height() ;
+                        float rightr=startX-35;
+                        float bottomr=high - super.getTitleHeight() + rect.height();
+                        drawRoundRect(canvas,leftr,topr,rightr,bottomr,maxValueTopColor);
+                        canvas.drawText(maxPrice, startX - 50-w, high - super.getTitleHeight() + rect.height() / 2, paint);
+
+                        //画三角
+                        Paint paint1 = new Paint();
+                        paint1.setColor(maxValueTopColor);
+                        paint1.setStrokeJoin(Paint.Join.ROUND);
+                        paint1.setStrokeWidth(2);              //线宽
+                        paint1.setStyle(Paint.Style.FILL);
+                        Path path=new Path();
+                        path.moveTo(startX,high);
+                        path.lineTo(rightr,bottomr-mCornerRadius);
+                        path.lineTo(rightr-mCornerRadius,bottomr);
+                        path.moveTo(startX,high);
+                        canvas.drawPath(path,paint1);
+                    }
+
                 }
 
             }
+
+            //最小值
             if (mDataStartIndext + i == minIndex) {
                 String minPrice = entity.getLowPrice() + "";
                 paint.getTextBounds(minPrice, 0, 1, rect);
                 float w = paint.measureText(minPrice);
                 //左箭头
                 if ((i * mCandleWidth + mCandleWidth / 2) > (w + 50)) {
-                    canvas.drawLine(startX, low + super.getTitleHeight(), startX + 50, low + super.getTitleHeight(), paint);
-                    canvas.drawLine(startX, low + super.getTitleHeight(), startX + 20, low + super.getTitleHeight() + 20, paint);
-                    canvas.drawLine(startX, low + super.getTitleHeight(), startX + 20, low + super.getTitleHeight() - 20, paint);
-                    canvas.drawText(minPrice, startX + 50, low + super.getTitleHeight() + rect.height() / 2, paint);
+
+
+                    if(isArrow)
+                    {
+                        canvas.drawLine(startX, low + super.getTitleHeight(), startX + 50, low + super.getTitleHeight(), paint);
+                        canvas.drawLine(startX, low + super.getTitleHeight(), startX + 20, low + super.getTitleHeight() + 20, paint);
+                        canvas.drawLine(startX, low + super.getTitleHeight(), startX + 20, low + super.getTitleHeight() - 20, paint);
+                        canvas.drawText(minPrice, startX + 50, low + super.getTitleHeight() + rect.height() / 2, paint);
+                    }else
+                    {
+                        float leftr=startX+35;
+                        float topr=low +rect.height()/2;
+                        float rightr=startX+65+w;
+                        float bottomr=low + super.getTitleHeight() + rect.height();
+                        drawRoundRect(canvas,leftr,topr,rightr,bottomr,minValueBottomColor);
+                        canvas.drawText(minPrice, startX + 50, low + super.getTitleHeight() + rect.height() / 2, paint);
+
+                        //画三角
+                        Paint paint1 = new Paint();
+                        paint1.setColor(minValueBottomColor);
+                        paint1.setStrokeJoin(Paint.Join.ROUND);
+                        paint1.setStrokeWidth(2);              //线宽
+                        paint1.setStyle(Paint.Style.FILL);
+                        Path path=new Path();
+                        path.moveTo(startX,low);
+                        path.lineTo(leftr,topr+mCornerRadius);
+                        path.lineTo(leftr+mCornerRadius,topr);
+                        path.moveTo(startX,low);
+                        canvas.drawPath(path,paint1);
+                    }
+
+
                 } else {
-                    canvas.drawLine(startX, low + super.getTitleHeight(), startX - 50, low + super.getTitleHeight(), paint);
-                    canvas.drawLine(startX, low + super.getTitleHeight(), startX - 20, low + super.getTitleHeight() - 20, paint);
-                    canvas.drawLine(startX, low + super.getTitleHeight(), startX - 20, low + super.getTitleHeight() + 20, paint);
-                    canvas.drawText(minPrice, startX - 50 - w, low + super.getTitleHeight() + rect.height() / 2, paint);
+
+                    if(isArrow)
+                    {
+                        canvas.drawLine(startX, low + super.getTitleHeight(), startX - 50, low + super.getTitleHeight(), paint);
+                        canvas.drawLine(startX, low + super.getTitleHeight(), startX - 20, low + super.getTitleHeight() - 20, paint);
+                        canvas.drawLine(startX, low + super.getTitleHeight(), startX - 20, low + super.getTitleHeight() + 20, paint);
+                        canvas.drawText(minPrice, startX - 50 - w, low + super.getTitleHeight() + rect.height() / 2, paint);
+                    }else
+                    {
+
+                        float leftr=startX-65-w;
+                        float topr=low +rect.height()/2;
+                        float rightr=startX-35;
+                        float bottomr=low + super.getTitleHeight() + rect.height();
+                        drawRoundRect(canvas,leftr,topr,rightr,bottomr,minValueBottomColor);
+                        canvas.drawText(minPrice, startX - 50 - w, low + super.getTitleHeight() + rect.height() / 2, paint);
+
+                        //画三角
+                        Paint paint1 = new Paint();
+                        paint1.setColor(minValueBottomColor);
+                        paint1.setStrokeJoin(Paint.Join.ROUND);
+                        paint1.setStrokeWidth(2);              //线宽
+                        paint1.setStyle(Paint.Style.FILL);
+                        Path path=new Path();
+                        path.moveTo(startX,low);
+                        path.lineTo(rightr,topr+mCornerRadius);
+                        path.lineTo(rightr-mCornerRadius,topr);
+                        path.moveTo(startX,low);
+                        canvas.drawPath(path,paint1);
+
+                    }
+
                 }
             }
 
         }
     }
+    private void drawRoundRect(Canvas canvas,float left, float top, float right, float bottom,int color)
+    {
+        Paint p = new Paint();
+        //画圆角矩形
+        p.setStyle(Paint.Style.FILL);//充满
+        p.setColor(color);
+        p.setAntiAlias(true);// 设置画笔的锯齿效果
+        RectF oval3 = new RectF(left, top, right, bottom);// 设置个新的长方形
+        canvas.drawRoundRect(oval3, mCornerRadius, mCornerRadius, p);//第二个参数是x半径，第三个参数是y半径
 
+    }
 
     private void drawMACD(Canvas canvas) {
         if (mOHLCData == null || mOHLCData.size() <= 0) {
