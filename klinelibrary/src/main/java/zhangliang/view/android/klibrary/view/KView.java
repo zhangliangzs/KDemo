@@ -148,6 +148,28 @@ public class KView extends GridChartKView {
     public static int klineRed = 0xCD1A1E;
     public static int klineGreen = 0x7AA376;
 
+    private boolean isUpFill=true;
+    private boolean isDownFill = true;
+    private int mUpColor=DEFAULT_AXIS_TITLE_COLOR;
+    private int mDownColor =DEFAULT_AXIS_TITLE_COLOR;
+
+    public void setUpFill(boolean upfill)
+    {
+        this.isUpFill = upfill;
+    }
+    public void setDownFill(boolean dowm)
+    {
+        this.isDownFill = dowm;
+    }
+
+    public void setUpColor(int color)
+    {
+        this.mUpColor = color;
+    }
+    public void setDownColor(int color)
+    {
+        this.mDownColor = color;
+    }
     /**
      * 量能均线数组
      */
@@ -224,6 +246,22 @@ public class KView extends GridChartKView {
         kline30dayline = res.getColor(R.color.kline30dayline);
         klineRed = res.getColor(R.color.klinered);
         klineGreen = res.getColor(R.color.klinegreen);
+
+        mUpColor =klineRed;
+        mDownColor = klineGreen;
+    }
+
+    public void setKline5dayline(int color)
+    {
+        kline5dayline = color;
+    }
+    public void setKline10dayline(int color)
+    {
+        kline10dayline = color;
+    }
+    public void setKline30dayline(int color)
+    {
+        kline30dayline = color;
     }
 
     @Override
@@ -310,16 +348,16 @@ public class KView extends GridChartKView {
 
         float y = super.getTouchPoint().y;
         //纠正出界
-        if (y < super.getTitleHeight() + UPER_CHART_MARGIN_TOP) {
-            y = super.getTitleHeight() + UPER_CHART_MARGIN_TOP;
+        if (y < super.getTitleHeight() + Up_chart_margin) {
+            y = super.getTitleHeight() + Up_chart_margin;
         }
-        if (y > super.getTitleHeight() + UPER_CHART_MARGIN_TOP + super.getUperChartHeight()) {
-            y = super.getTitleHeight() + UPER_CHART_MARGIN_TOP + super.getUperChartHeight();
+        if (y > super.getTitleHeight() + Up_chart_margin + super.getUperChartHeight()) {
+            y = super.getTitleHeight() + Up_chart_margin + super.getUperChartHeight();
         }
         if (super.getTouchPoint() != null || mOHLCData != null && mOHLCData.size() > 0) {
             setAxisXClickTitle(String.valueOf(mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getTime3()));
 
-            float roate = 1 - (y - super.getTitleHeight() - UPER_CHART_MARGIN_TOP) / super.getUperChartHeight();
+            float roate = 1 - (y - super.getTitleHeight() - Up_chart_margin) / super.getUperChartHeight();
 
             setAxisYClickTitle(roate * (mMaxPrice - mMinPrice) + mMinPrice + "");
 
@@ -327,18 +365,21 @@ public class KView extends GridChartKView {
             PointF piont = new PointF(startX, y);
             super.setTouchPoint(piont);
         }
-        super.drawAlphaTopTextBox(res.getString(R.string.open) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getOpenPrice() + res.getString(R.string.high) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getHighPrice() +
-                res.getString(R.string.low) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getLowPrice() + res.getString(R.string.close) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getClosePrice() + res.getString(R.string.vol) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getVol(), canvas);
-        drawMAText(MALineData, canvas, mShowDataNum - 1 - index + mDataStartIndext, kline5dayline, kline10dayline, kline30dayline);
-        drawVMAText(MAVLineData, canvas, mShowDataNum - 1 - index + mDataStartIndext, kline5dayline, kline10dayline);
-      //  drawAlphaMiddleTextBox(res.getString(R.string.vol) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getVol(), canvas);
-        if (mMACDData != null && mShowMACD) {
-            drawAlphaBottomTextBox("MACD(12,26,9) DIF:" + new DecimalFormat("#.##").format(mMACDData.getDIF().get(mShowDataNum - 1 - index + mDataStartIndext)) + " DEA:" + new DecimalFormat("#.##").format(mMACDData.getDEA().get(mShowDataNum - 1 - index + mDataStartIndext))
-                    + "MACD:" + new DecimalFormat("#.##").format(mMACDData.getBAR().get(mShowDataNum - 1 - index + mDataStartIndext)), canvas);
-        }
 
-        if (mKDJData != null && mShowJKD) {
-            drawAlphaBottomTextBox("KDJ(9,3,3) K:" + new DecimalFormat("#.##").format(mKDJData.getK().get(mShowDataNum - 1 - index + mDataStartIndext)) + " D:" + new DecimalFormat("#.##").format(mKDJData.getD().get(mShowDataNum - 1 - index + mDataStartIndext)) + "J:" + new DecimalFormat("#.##").format(mKDJData.getJ().get(mShowDataNum - 1 - index + mDataStartIndext)), canvas);
+        if(isShowTitle) {
+            super.drawAlphaTopTextBox(res.getString(R.string.open) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getOpenPrice() + res.getString(R.string.high) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getHighPrice() +
+                    res.getString(R.string.low) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getLowPrice() + res.getString(R.string.close) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getClosePrice() + res.getString(R.string.vol) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getVol(), canvas);
+            drawMAText(MALineData, canvas, mShowDataNum - 1 - index + mDataStartIndext, kline5dayline, kline10dayline, kline30dayline);
+            drawVMAText(MAVLineData, canvas, mShowDataNum - 1 - index + mDataStartIndext, kline5dayline, kline10dayline);
+            //  drawAlphaMiddleTextBox(res.getString(R.string.vol) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getVol(), canvas);
+            if (mMACDData != null && mShowMACD) {
+                drawAlphaBottomTextBox("MACD(12,26,9) DIF:" + new DecimalFormat("#.##").format(mMACDData.getDIF().get(mShowDataNum - 1 - index + mDataStartIndext)) + " DEA:" + new DecimalFormat("#.##").format(mMACDData.getDEA().get(mShowDataNum - 1 - index + mDataStartIndext))
+                        + "MACD:" + new DecimalFormat("#.##").format(mMACDData.getBAR().get(mShowDataNum - 1 - index + mDataStartIndext)), canvas);
+            }
+
+            if (mKDJData != null && mShowJKD) {
+                drawAlphaBottomTextBox("KDJ(9,3,3) K:" + new DecimalFormat("#.##").format(mKDJData.getK().get(mShowDataNum - 1 - index + mDataStartIndext)) + " D:" + new DecimalFormat("#.##").format(mKDJData.getD().get(mShowDataNum - 1 - index + mDataStartIndext)) + "J:" + new DecimalFormat("#.##").format(mKDJData.getJ().get(mShowDataNum - 1 - index + mDataStartIndext)), canvas);
+            }
         }
 
         super.drawWithFingerClick(canvas);
@@ -382,7 +423,11 @@ public class KView extends GridChartKView {
                         return true;
                     }
                     float horizontalSpacing = event.getX() - mStartX;
+
+                    mStartX = event.getX();
+                    mStartY = event.getY();
                     if (Math.floor(Math.abs(horizontalSpacing)) < mCandleWidth) {
+
                         point = new PointF(mStartX, mStartY);
                         super.setTouchPoint(point);
                         postInvalidate();
@@ -404,8 +449,7 @@ public class KView extends GridChartKView {
                             mDataStartIndext = mOHLCData.size() - mShowDataNum;
                         }
                     }
-                    mStartX = event.getX();
-                    mStartY = event.getY();
+
                   /*  point = new PointF(mStartX, mStartY);
                     super.setTouchPoint(point);*/
                     setCurrentData();
@@ -454,7 +498,7 @@ public class KView extends GridChartKView {
     private void startMotion(final MotionEvent event,final float horizontalSpacing) {
         ValueAnimator animator = ValueAnimator.ofFloat(horizontalSpacing,0f);
         animator.setDuration(500).setRepeatCount(0);
-        animator.setInterpolator(new DecelerateInterpolator());//使用线性插值器
+        animator.setInterpolator(new LinearInterpolator());//使用线性插值器
         animator.start();
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
@@ -613,13 +657,26 @@ public class KView extends GridChartKView {
 
         // 绘制蜡烛图
         Paint redPaint = new Paint();
-        redPaint.setStyle(Paint.Style.STROKE);
-        redPaint.setColor(klineRed);
+        if(isUpFill)
+        {
+            redPaint.setStyle(Paint.Style.FILL);
+        }
+       else
+        {
+            redPaint.setStyle(Paint.Style.STROKE);
+        }
+        redPaint.setColor(mUpColor);
 
         Paint greenPaint = new Paint();
-        greenPaint.setColor(klineGreen);
-
-
+        greenPaint.setColor(mDownColor);
+        if(isDownFill)
+        {
+            greenPaint.setStyle(Paint.Style.FILL);
+        }
+        else
+        {
+            greenPaint.setStyle(Paint.Style.STROKE);
+        }
         // 绘最大最小值
         Paint paint = new Paint();
         paint.setTextSize(DEFAULT_AXIS_TITLE_SIZE);
@@ -630,10 +687,10 @@ public class KView extends GridChartKView {
         double rate = (getUperChartHeight()) / (mMaxPrice - mMinPrice);
         for (int i = 0; i < mShowDataNum && mDataStartIndext + i < mOHLCData.size(); i++) {
             MarketChartData entity = mOHLCData.get(mDataStartIndext + i);
-            float open = (float) ((mMaxPrice - entity.getOpenPrice()) * rate + TITLE_HEIGHT + UPER_CHART_MARGIN_TOP);
-            float close = (float) ((mMaxPrice - entity.getClosePrice()) * rate + TITLE_HEIGHT + UPER_CHART_MARGIN_TOP);
-            float high = (float) ((mMaxPrice - entity.getHighPrice()) * rate + TITLE_HEIGHT + UPER_CHART_MARGIN_TOP);
-            float low = (float) ((mMaxPrice - entity.getLowPrice()) * rate + TITLE_HEIGHT + UPER_CHART_MARGIN_TOP);
+            float open = (float) ((mMaxPrice - entity.getOpenPrice()) * rate  + Up_chart_margin+Up_title_height);
+            float close = (float) ((mMaxPrice - entity.getClosePrice()) * rate  + Up_chart_margin+Up_title_height);
+            float high = (float) ((mMaxPrice - entity.getHighPrice()) * rate  + Up_chart_margin+Up_title_height);
+            float low = (float) ((mMaxPrice - entity.getLowPrice()) * rate  + Up_chart_margin+Up_title_height);
 
             float left = (float) (width - mCandleWidth * (i + 1));
             float right = (float) (width - mCandleWidth * i);
@@ -641,7 +698,8 @@ public class KView extends GridChartKView {
 
             if (open < close) {
                 canvas.drawRect(left + 1, open, right - 1, close, greenPaint);
-                canvas.drawLine(startX, high, startX, low, greenPaint);
+                canvas.drawLine(startX, high, startX, open, greenPaint);
+                canvas.drawLine(startX, close, startX, low, greenPaint);
             } else if (open == close) {
                 canvas.drawRect(left + 1, close - 1, right - 1, open + 1, redPaint);
                 canvas.drawLine(startX, high, startX, low, redPaint);
@@ -896,11 +954,18 @@ public class KView extends GridChartKView {
             dea = zero - (float) ((DEA.get(i)) * rate);
             dif = zero - (float) ((DIF.get(i)) * rate);
         }
-        canvas.drawText(new DecimalFormat("#.##").format(high), super.getWidth() - DEFAULT_AXIS_MARGIN_RIGHT, lowertop
+
+        float margin_right = DEFAULT_AXIS_MARGIN_RIGHT;
+        if(super.isInnerYAxis)
+        {
+            margin_right=sp2px(mConext,40);
+        }
+
+        canvas.drawText(new DecimalFormat("#.##").format(high), super.getWidth() - margin_right, lowertop
                 + DEFAULT_AXIS_TITLE_SIZE - 2, textPaint);
-        canvas.drawText(new DecimalFormat("#.##").format(0), super.getWidth() - DEFAULT_AXIS_MARGIN_RIGHT, lowertop
+        canvas.drawText(new DecimalFormat("#.##").format(0), super.getWidth() - margin_right, lowertop
                 + lowerHight / 2 + DEFAULT_AXIS_TITLE_SIZE, textPaint);
-        canvas.drawText(new DecimalFormat("#.##").format(low), super.getWidth() - DEFAULT_AXIS_MARGIN_RIGHT, lowertop + lowerHight,
+        canvas.drawText(new DecimalFormat("#.##").format(low), super.getWidth() - margin_right, lowertop + lowerHight,
                 textPaint);
         // } catch (Exception e) {
 
@@ -959,9 +1024,16 @@ public class KView extends GridChartKView {
 
 
         }
-        canvas.drawText(new DecimalFormat("#.##").format(high), super.getWidth() - DEFAULT_AXIS_MARGIN_RIGHT, lowertop + DEFAULT_AXIS_TITLE_SIZE - 2, textPaint);
-        canvas.drawText(new DecimalFormat("#.##").format(50), super.getWidth() - DEFAULT_AXIS_MARGIN_RIGHT, lowertop + lowerHight / 2 + DEFAULT_AXIS_TITLE_SIZE, textPaint);
-        canvas.drawText(new DecimalFormat("#.##").format(low), super.getWidth() - DEFAULT_AXIS_MARGIN_RIGHT, lowertop + lowerHight, textPaint);
+
+        float margin_right=DEFAULT_AXIS_MARGIN_RIGHT;
+        if(super.isInnerYAxis)
+        {
+            margin_right=sp2px(mConext,40);
+        }
+            canvas.drawText(new DecimalFormat("#.##").format(high), super.getWidth() - margin_right, lowertop + DEFAULT_AXIS_TITLE_SIZE - 2, textPaint);
+            canvas.drawText(new DecimalFormat("#.##").format(50), super.getWidth() - margin_right, lowertop + lowerHight / 2 + DEFAULT_AXIS_TITLE_SIZE, textPaint);
+            canvas.drawText(new DecimalFormat("#.##").format(low), super.getWidth() - margin_right, lowertop + lowerHight, textPaint);
+
     }
 
     /**
@@ -991,9 +1063,9 @@ public class KView extends GridChartKView {
                         / (mMaxVol)) * mMiddleChartHeight);
 
                 if (ohlc.getClosePrice() > ohlc.getOpenPrice()) {
-                    canvas.drawRect(stickX + 1, super.LOWER_CHART_TOP - super.getTitleHeight() - highY, stickX + stickWidth - 1, super.LOWER_CHART_TOP - super.getTitleHeight(), mPaintRedStick);
+                    canvas.drawRect(stickX + 1, super.LOWER_CHART_TOP - super.Down_title_height - highY, stickX + stickWidth - 1, super.LOWER_CHART_TOP - super.Down_title_height, mPaintRedStick);
                 } else {
-                    canvas.drawRect(stickX + 1, super.LOWER_CHART_TOP - super.getTitleHeight() - highY, stickX + stickWidth - 1, super.LOWER_CHART_TOP - super.getTitleHeight(), mPaintGreenStick);
+                    canvas.drawRect(stickX + 1, super.LOWER_CHART_TOP - super.Down_title_height - highY, stickX + stickWidth - 1, super.LOWER_CHART_TOP - super.Down_title_height, mPaintGreenStick);
                 }
                 //X位移
                 stickX = stickX - stickWidth;
@@ -1005,9 +1077,19 @@ public class KView extends GridChartKView {
         textPaint.setColor(super.getAxisColor());
         textPaint.setTextSize(DEFAULT_AXIS_TITLE_SIZE);
 
-        canvas.drawText(new DecimalFormat("#.##").format(mMaxVol), super.getWidth() - DEFAULT_AXIS_MARGIN_RIGHT - 1, super.LOWER_CHART_TOP - super.getTitleHeight() - super.mMiddleChartHeight, textPaint);
-        canvas.drawText(new DecimalFormat("#.##").format((mMaxVol) / 2), super.getWidth() - DEFAULT_AXIS_MARGIN_RIGHT - 1, super.LOWER_CHART_TOP - super.getTitleHeight() - super.mMiddleChartHeight / 2, textPaint);
-        canvas.drawText(new DecimalFormat("#.##").format(0), super.getWidth() - DEFAULT_AXIS_MARGIN_RIGHT - 1, super.LOWER_CHART_TOP - super.getTitleHeight(), textPaint);
+
+        float margin_right=DEFAULT_AXIS_MARGIN_RIGHT;
+        if(super.isInnerYAxis)
+        {
+            margin_right=sp2px(mConext,40);
+        }
+
+            canvas.drawText(new DecimalFormat("#.##").format(mMaxVol), super.getWidth() - margin_right - 1, super.LOWER_CHART_TOP+TITLE_HEIGHT - super.Down_title_height - super.mMiddleChartHeight, textPaint);
+            canvas.drawText(new DecimalFormat("#.##").format((mMaxVol) / 2), super.getWidth() - margin_right - 1, super.LOWER_CHART_TOP - super.Down_title_height - super.mMiddleChartHeight / 2, textPaint);
+            canvas.drawText(new DecimalFormat("#.##").format(0), super.getWidth() - margin_right - 1, super.LOWER_CHART_TOP - super.Down_title_height, textPaint);
+
+
+
 
 
     }
@@ -1058,13 +1140,13 @@ public class KView extends GridChartKView {
                             startX,
                             startY > MIDDLE_CHART_TOP - 2 * TITLE_HEIGHT ? MIDDLE_CHART_TOP - 2 * TITLE_HEIGHT : startY,
                             (float) (super.getWidth() - super.DEFAULT_AXIS_MARGIN_RIGHT - 2 - mCandleWidth * i - mCandleWidth * 0.5f),
-                            (float) (((mMaxPrice - lineEntity.getLineData().get(mDataStartIndext + i)) * rate) + TITLE_HEIGHT + UPER_CHART_MARGIN_TOP) > MIDDLE_CHART_TOP - 2 * TITLE_HEIGHT ? MIDDLE_CHART_TOP - 2 * TITLE_HEIGHT : (float) ((mMaxPrice - lineEntity.getLineData().get(mDataStartIndext + i)) * rate) + TITLE_HEIGHT + UPER_CHART_MARGIN_TOP,
+                            (float) (((mMaxPrice - lineEntity.getLineData().get(mDataStartIndext + i)) * rate) + TITLE_HEIGHT + Up_chart_margin) > MIDDLE_CHART_TOP - 2 * TITLE_HEIGHT ? MIDDLE_CHART_TOP - 2 * TITLE_HEIGHT : (float) ((mMaxPrice - lineEntity.getLineData().get(mDataStartIndext + i)) * rate) + TITLE_HEIGHT + Up_chart_margin,
                             paint);
 
 
                 }
                 startX = (float) (super.getWidth() - super.DEFAULT_AXIS_MARGIN_RIGHT - 2 - mCandleWidth * i - mCandleWidth * 0.5f);
-                startY = (float) ((mMaxPrice - lineEntity.getLineData().get(mDataStartIndext + i)) * rate) + TITLE_HEIGHT + UPER_CHART_MARGIN_TOP;
+                startY = (float) ((mMaxPrice - lineEntity.getLineData().get(mDataStartIndext + i)) * rate) + TITLE_HEIGHT + Up_chart_margin;
 
 
             }

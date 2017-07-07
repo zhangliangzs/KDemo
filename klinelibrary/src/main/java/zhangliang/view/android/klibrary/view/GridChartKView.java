@@ -30,6 +30,8 @@ public class GridChartKView extends View {
 	/** 默认字体大小 **/
 	public float DEFAULT_AXIS_TITLE_SIZE =10;
 
+	public boolean isShowTitle =false;
+
 
 	/** 默认字体颜色 **/
 	public static  int DEFAULT_AXIS_TITLE_COLOR = 0x78797A;
@@ -93,14 +95,11 @@ public class GridChartKView extends View {
 			new float[] { 15, 15, 15, 15 }, 15);
 
 
-	/** 上表的上间隙 */
-	public static float UPER_CHART_MARGIN_TOP;
+	/** 上下表的间隔距离 */
+	public static float Up_chart_margin;
 
 	/** 上表的顶部 */
 	public static float UPER_CHART_TOP;
-	/** 上表的下间隙 */
-	public static float UPER_CHART_MARGIN_BOTTOM;
-
 	/** 中表的顶部 */
 	public static float MIDDLE_CHART_TOP;
 
@@ -125,7 +124,7 @@ public class GridChartKView extends View {
 
 	/** 虚线效果 */
 	private PathEffect mDashEffect;
-	private boolean isInnerYAxis = false;
+	protected boolean isInnerYAxis = false;
 	/** 边线色 */
 	private int mBorderColor;
 
@@ -136,6 +135,21 @@ public class GridChartKView extends View {
 	/** 下表高度 */
 	public float mLowerChartHeight;
 
+	public float Up_title_height=2*TITLE_HEIGHT;
+	public float Middle_title_height=TITLE_HEIGHT;
+	public float Down_title_height=TITLE_HEIGHT;
+	public void setUpTitleHeight(float height)
+	{
+	 this.Up_title_height = height;
+	}
+	public void setMiddleTitleHeight(float height)
+	{
+		this.Middle_title_height = height;
+	}
+	public void setDownTitleHeight(float height)
+	{
+		this.Down_title_height = height;
+	}
 	public void setBuyOrSellChartHeight(float height)
 	{
 		this.mBuyOrSellChartHeight = sp2px(mContext,height);;
@@ -195,6 +209,11 @@ public class GridChartKView extends View {
 		if(mBuyOrSellChartHeight!=0)
 			mBuyOrSellChartHeight =  sp2px(mContext,mBuyOrSellChartHeight);
 
+
+		Up_title_height=2*TITLE_HEIGHT;
+		Middle_title_height=TITLE_HEIGHT;
+		Down_title_height=TITLE_HEIGHT;
+
 	}
 
 
@@ -235,7 +254,25 @@ public class GridChartKView extends View {
 		return result;
 	}
 
-
+public void setShowTitle(boolean isshow)
+{
+	this.isShowTitle = isshow;
+	float height = 0;
+	if(isshow)
+	{
+		height = TITLE_HEIGHT;
+	}else
+	{
+		height = 0;
+	}
+	setTitleHeight(height);
+}
+	private void setTitleHeight(float height)
+	{
+		Up_title_height=2*height;
+		Middle_title_height=height;
+		Down_title_height=height;
+	}
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
@@ -249,20 +286,28 @@ public class GridChartKView extends View {
 		//经度
 		longitudeSpacing = (viewWidth - DEFAULT_AXIS_MARGIN_RIGHT-2)/DEFAULT_LOGITUDE_NUM;
 		//维度#####4-8
-		latitudeSpacing =(viewHeight - TITLE_HEIGHT*9-mBuyOrSellChartHeight)/(DEFAULT_UPER_LATITUDE_NUM+DEFAULT_LOWER_LATITUDE_NUM+DEFAULT_MIDDLE_LATITUDE_NUM);
+		if(isShowTitle)
+		{
+			latitudeSpacing =(viewHeight - TITLE_HEIGHT*9-mBuyOrSellChartHeight)/(DEFAULT_UPER_LATITUDE_NUM+DEFAULT_LOWER_LATITUDE_NUM+DEFAULT_MIDDLE_LATITUDE_NUM);
+		}else
+		{
+			latitudeSpacing =(viewHeight - TITLE_HEIGHT*5-mBuyOrSellChartHeight)/(DEFAULT_UPER_LATITUDE_NUM+DEFAULT_LOWER_LATITUDE_NUM+DEFAULT_MIDDLE_LATITUDE_NUM);
+		}
+
 
 		mUperChartHeight = DEFAULT_UPER_LATITUDE_NUM*latitudeSpacing;
 		mMiddleChartHeight = DEFAULT_MIDDLE_LATITUDE_NUM*latitudeSpacing;
 		mLowerChartHeight = DEFAULT_LOWER_LATITUDE_NUM*latitudeSpacing;
 
 
-		UPER_CHART_MARGIN_TOP = 3*TITLE_HEIGHT;
-		//###加上表间隔
-		UPER_CHART_TOP = TITLE_HEIGHT+UPER_CHART_MARGIN_TOP;
-		UPER_CHART_MARGIN_BOTTOM = 2*TITLE_HEIGHT;
 
-		MIDDLE_CHART_TOP = 3*TITLE_HEIGHT+mUperChartHeight+UPER_CHART_MARGIN_BOTTOM+UPER_CHART_MARGIN_TOP+mBuyOrSellChartHeight;
-		LOWER_CHART_TOP =MIDDLE_CHART_TOP+mMiddleChartHeight+TITLE_HEIGHT;
+
+		Up_chart_margin = 2*TITLE_HEIGHT;
+		//###加上表间隔  箭头或者去泡高度
+		UPER_CHART_TOP = Up_title_height+Up_chart_margin;
+
+		MIDDLE_CHART_TOP = UPER_CHART_TOP+mUperChartHeight+Up_chart_margin+Middle_title_height+TITLE_HEIGHT+mBuyOrSellChartHeight;
+		LOWER_CHART_TOP =MIDDLE_CHART_TOP+mMiddleChartHeight+Down_title_height;
 		// 绘制边框
 		drawBorders(canvas, viewHeight, viewWidth);
 		// 绘制纬线
@@ -279,10 +324,19 @@ public class GridChartKView extends View {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+
+
+		float x = super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT;
+		if(isInnerYAxis)
+		{
+			x = super.getWidth();
+		}
+		float y=MIDDLE_CHART_TOP-Middle_title_height-TITLE_HEIGHT;
+
 		if (event.getY() > 0
-				&& event.getY() < MIDDLE_CHART_TOP-2*TITLE_HEIGHT
+				&& event.getY() < y
 				&& event.getX() > 0
-				&& event.getX() < super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT) {
+				&& event.getX() < x) {
 
 			/*
 			 * 判定用户是否触摸到�?���?如果是单点触摸则�?��绘制十字线 如果是2点触控则�?��K线放大
@@ -347,9 +401,9 @@ public class GridChartKView extends View {
 		path.lineTo(viewWidth-DEFAULT_AXIS_MARGIN_RIGHT,UPER_CHART_TOP);
 		canvas.drawPath(path, paint);
 
-		path.moveTo(0, TITLE_HEIGHT);
-		path.lineTo(viewWidth-DEFAULT_AXIS_MARGIN_RIGHT,TITLE_HEIGHT);
-		canvas.drawPath(path, paint);
+				path.moveTo(0, TITLE_HEIGHT);
+				path.lineTo(viewWidth-DEFAULT_AXIS_MARGIN_RIGHT,TITLE_HEIGHT);
+				canvas.drawPath(path, paint);
 
 
 		path.moveTo(0, MIDDLE_CHART_TOP-TITLE_HEIGHT );
@@ -381,22 +435,16 @@ public class GridChartKView extends View {
 
 			if(axisYTitles!=null)
 			{
+				//右边间隔
 				float xx = sp2px(mContext,40);
 
 				float x=viewWidth-xx;
-				/*if(isInnerYAxis)
-				{
-					x=sp2px(mContext,40);
-				}else
-				{
-					x=viewWidth-DEFAULT_AXIS_MARGIN_RIGHT;
-				}*/
 
 				// 绘制Y刻度
-				canvas.drawText(axisYTitles.get(i), x, MIDDLE_CHART_TOP-2*TITLE_HEIGHT-mBuyOrSellChartHeight-UPER_CHART_MARGIN_BOTTOM-latitudeSpacing*(i), paintAxis);
+				canvas.drawText(axisYTitles.get(i), x, MIDDLE_CHART_TOP-Middle_title_height-TITLE_HEIGHT-mBuyOrSellChartHeight-Up_chart_margin-latitudeSpacing*(i), paintAxis);
 				if(i==DEFAULT_UPER_LATITUDE_NUM-1)
 				{
-					canvas.drawText(axisYTitles.get(DEFAULT_UPER_LATITUDE_NUM), x, MIDDLE_CHART_TOP-2*TITLE_HEIGHT-mBuyOrSellChartHeight-UPER_CHART_MARGIN_BOTTOM-latitudeSpacing*(DEFAULT_UPER_LATITUDE_NUM), paintAxis);
+					canvas.drawText(axisYTitles.get(DEFAULT_UPER_LATITUDE_NUM), x, MIDDLE_CHART_TOP-Middle_title_height-TITLE_HEIGHT-mBuyOrSellChartHeight-Up_chart_margin-latitudeSpacing*(DEFAULT_UPER_LATITUDE_NUM), paintAxis);
 
 				}
 			}
@@ -446,7 +494,7 @@ public class GridChartKView extends View {
 		for (int i = 0; i < axisXTitles.size(); i++) {
 			float tWidth = paint.measureText(axisXTitles.get(i));
 			// 绘制刻度
-			canvas.drawText(axisXTitles.get(i), super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT-longitudeSpacing * (i)-tWidth, TITLE_HEIGHT + mUperChartHeight +UPER_CHART_MARGIN_BOTTOM+UPER_CHART_MARGIN_TOP+DEFAULT_AXIS_TITLE_SIZE, paintAxis);
+			canvas.drawText(axisXTitles.get(i), super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT-longitudeSpacing * (i)-tWidth, MIDDLE_CHART_TOP-Middle_title_height-mBuyOrSellChartHeight, paintAxis);
 
 		}
 
@@ -634,7 +682,7 @@ public class GridChartKView extends View {
 		if (touchPoint!=null) {
 
 			float value = DEFAULT_AXIS_MARGIN_RIGHT;
-			if(isInnerYAxis)
+			if(!isInnerYAxis)
 			{
 				value = sp2px(mContext,40);
 			}
@@ -672,9 +720,9 @@ public class GridChartKView extends View {
 		float strw = mPaintBoxLine.measureText(content);
 
 		float left = touchPoint.x-strw/2;
-		float top = MIDDLE_CHART_TOP-2*TITLE_HEIGHT-mBuyOrSellChartHeight;
+		float top = MIDDLE_CHART_TOP-Middle_title_height-TITLE_HEIGHT-mBuyOrSellChartHeight;
 		float right = touchPoint.x+strw/2;
-		float bottom = MIDDLE_CHART_TOP-TITLE_HEIGHT-mBuyOrSellChartHeight;
+		float bottom = MIDDLE_CHART_TOP-Middle_title_height-mBuyOrSellChartHeight;
 
 		canvas.drawRect(left, top, right, bottom, mPaintBox);
 		Paint borderPaint = new Paint();
@@ -684,7 +732,7 @@ public class GridChartKView extends View {
 		canvas.drawLine(left, top, right, top, borderPaint);
 		canvas.drawLine(right, bottom, right, top, borderPaint);
 		canvas.drawLine(right, bottom, left, bottom, borderPaint);
-		canvas.drawText(content, touchPoint.x-strw/2, MIDDLE_CHART_TOP-mBuyOrSellChartHeight-TITLE_HEIGHT-2, mPaintBoxLine);
+		canvas.drawText(content, touchPoint.x-strw/2, MIDDLE_CHART_TOP-mBuyOrSellChartHeight-Middle_title_height-2, mPaintBoxLine);
 	}
 
 
@@ -718,9 +766,9 @@ public class GridChartKView extends View {
 			value = sp2px(mContext,40);
 		}
 		float left = super.getWidth()-value;
-		float top = touchPoint.y-strh/2>MIDDLE_CHART_TOP-2*TITLE_HEIGHT-UPER_CHART_MARGIN_BOTTOM-strh/2?MIDDLE_CHART_TOP-2*TITLE_HEIGHT-UPER_CHART_MARGIN_BOTTOM-strh/2:touchPoint.y-strh/2;
+		float top = touchPoint.y-strh/2>MIDDLE_CHART_TOP-Middle_title_height-TITLE_HEIGHT-Up_chart_margin-strh/2?MIDDLE_CHART_TOP-Middle_title_height-TITLE_HEIGHT-Up_chart_margin-strh/2:touchPoint.y-strh/2;
 		float right = super.getWidth()-2;
-		float bottom = touchPoint.y+strh/2>MIDDLE_CHART_TOP-2*TITLE_HEIGHT-UPER_CHART_MARGIN_BOTTOM+strh/2?MIDDLE_CHART_TOP-2*TITLE_HEIGHT-UPER_CHART_MARGIN_BOTTOM+strh/2:touchPoint.y+strh/2;
+		float bottom = touchPoint.y+strh/2>MIDDLE_CHART_TOP-Middle_title_height-TITLE_HEIGHT-Up_chart_margin+strh/2?MIDDLE_CHART_TOP-Middle_title_height-TITLE_HEIGHT-Up_chart_margin+strh/2:touchPoint.y+strh/2;
 
 		canvas.drawRect(left, top-3, right, bottom+3, mPaintBox);
 		Paint borderPaint = new Paint();
@@ -767,19 +815,6 @@ public class GridChartKView extends View {
 	}
 
 
-	// 获得来自其他图表�??知
-	public void notifyEvent(GridChartKView chart) {
-		PointF point = chart.getTouchPoint();
-		//如果没有�?中点
-		if(null != point){
-			// 获取点击坐�?
-			clickPostX = point.x;
-			clickPostY = point.y;
-		}
-		//设置当前控件�?��摸点
-		touchPoint = new PointF(clickPostX , clickPostY);
-		super.invalidate();
-	}
 
 	public PointF getTouchPoint() {
 		return touchPoint;
