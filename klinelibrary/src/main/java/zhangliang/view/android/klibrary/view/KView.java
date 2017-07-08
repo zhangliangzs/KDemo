@@ -130,20 +130,44 @@ public class KView extends GridChartKView {
      * OHLC数据
      */
     private List<MarketChartData> mOHLCData = new ArrayList<MarketChartData>();
-
+    boolean isOpenAnimator = false;
+    public void setOpenAnimator(boolean open)
+    {
+        isOpenAnimator = open;
+    }
 
     /**
      * 默认五日均线颜色
      **/
     public static int kline5dayline = 0x535d66;
+
+    private boolean mHave5Line = true;
+    private void setHave5Line(boolean have5Line)
+    {
+        mHave5Line=have5Line;
+    }
+
     /**
      * 默认十日均线颜色
      **/
     public static int kline10dayline = 0x535d66;
+    private boolean mHave10Line = true;
+    private void setHave10Line(boolean have10Line)
+    {
+        mHave10Line=have10Line;
+    }
+
+
+
     /**
      * 默认30日均线颜色
      **/
     public static int kline30dayline = 0x535d66;
+    private boolean mHave30Line = true;
+    private void setHave30Line(boolean have30Line)
+    {
+        mHave30Line=have30Line;
+    }
 
     public static int klineRed = 0xCD1A1E;
     public static int klineGreen = 0x7AA376;
@@ -406,14 +430,23 @@ public class KView extends GridChartKView {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         PointF point = null;
+        ValueAnimator mValueAnimator=null;
+
         if (event.getPointerCount() == 1) {
 
             acquireVelocityTracker(event);
 
             switch (event.getAction() & MotionEvent.ACTION_MASK) {
                 case MotionEvent.ACTION_DOWN:
-                    //求第一个触点的id， 此时可能有多个触点，但至少一个
-                    mPointerId = event.getPointerId(0);
+                    if(isOpenAnimator)
+                    {
+                        //求第一个触点的id， 此时可能有多个触点，但至少一个
+                        mPointerId = event.getPointerId(0);
+                        if(mValueAnimator!=null)
+                        {
+                            mValueAnimator.pause();
+                        }
+                    }
 
                     mStartX = event.getX();
                     mStartY = event.getY();
@@ -424,8 +457,6 @@ public class KView extends GridChartKView {
                     }
                     float horizontalSpacing = event.getX() - mStartX;
 
-                    mStartX = event.getX();
-                    mStartY = event.getY();
                     if (Math.floor(Math.abs(horizontalSpacing)) < mCandleWidth) {
 
                         point = new PointF(mStartX, mStartY);
@@ -449,23 +480,26 @@ public class KView extends GridChartKView {
                             mDataStartIndext = mOHLCData.size() - mShowDataNum;
                         }
                     }
-
+                    mStartX = event.getX();
+                    mStartY = event.getY();
                   /*  point = new PointF(mStartX, mStartY);
                     super.setTouchPoint(point);*/
                     setCurrentData();
                     postInvalidate();
                     break;
                 case MotionEvent.ACTION_UP:
-                    //求伪瞬时速度
-                    mVelocityTracker.computeCurrentVelocity(1000, mMaxVelocity);
-                    final float velocityX = mVelocityTracker.getXVelocity(mPointerId);
-                    Log.e("ACTION_UP velocityX",velocityX+"");
-                    Log.e("mMinVelocity ",mMinVelocity+"");
-                    Log.e("mMaxVelocity ",mMaxVelocity+"");
-                        if(Math.abs(velocityX)<800)
+                    if(isOpenAnimator) {
+                        //求伪瞬时速度
+                        mVelocityTracker.computeCurrentVelocity(1000, mMaxVelocity);
+                        final float velocityX = mVelocityTracker.getXVelocity(mPointerId);
+                        Log.e("ACTION_UP velocityX", velocityX + "");
+                        Log.e("mMinVelocity ", mMinVelocity + "");
+                        Log.e("mMaxVelocity ", mMaxVelocity + "");
+                        if (Math.abs(velocityX) < 800)
                             return true;
-                    startMotion(event,velocityX);
-                    releaseVelocityTracker();
+                        mValueAnimator = startMotion(event, velocityX);
+                        releaseVelocityTracker();
+                    }
                     break;
             }
         } else if (event.getPointerCount() == 2) {
@@ -495,7 +529,7 @@ public class KView extends GridChartKView {
         return true;
     }
 
-    private void startMotion(final MotionEvent event,final float horizontalSpacing) {
+    private ValueAnimator startMotion(final MotionEvent event,final float horizontalSpacing) {
         ValueAnimator animator = ValueAnimator.ofFloat(horizontalSpacing,0f);
         animator.setDuration(500).setRepeatCount(0);
         animator.setInterpolator(new LinearInterpolator());//使用线性插值器
@@ -504,6 +538,7 @@ public class KView extends GridChartKView {
 
                                        @Override
                                        public void onAnimationUpdate(ValueAnimator animation) {
+
                                            float fraction = (float) animation.getAnimatedValue();
 
                                            int mMoveNum = (int) Math.abs(Math.floor(Math.abs(fraction/10) / mCandleWidth));
@@ -528,6 +563,7 @@ public class KView extends GridChartKView {
                                    }
 
         );
+        return animator;
     }
     /**
      *
@@ -883,14 +919,12 @@ public class KView extends GridChartKView {
         float zero = 0;
 
         Paint whitePaint = new Paint();
-        whitePaint.setColor(Color.RED);
+        whitePaint.setColor(kline10dayline);
         whitePaint.setStrokeWidth(2);
         Paint yellowPaint = new Paint();
-        yellowPaint.setColor(Color.GREEN);
+        yellowPaint.setColor(kline5dayline);
         yellowPaint.setStrokeWidth(2);
-        Paint magentaPaint = new Paint();
-        magentaPaint.setColor(Color.MAGENTA);
-        magentaPaint.setStrokeWidth(2);
+
         Paint textPaint = new Paint();
         textPaint.setColor(super.getAxisColor());
         textPaint.setTextSize(DEFAULT_AXIS_TITLE_SIZE);
@@ -922,23 +956,100 @@ public class KView extends GridChartKView {
         // 绘制双线
         float dea = 0.0f;
         float dif = 0.0f;
-        for (int i = mDataStartIndext; i < mDataStartIndext + mShowDataNum && i < BAR.size(); i++) {
+
+        double bar=0;
+
+       /* for (int i = mDataStartIndext; i < mDataStartIndext + mShowDataNum && i < BAR.size(); i++) {
+
+            // 绘制矩形
+            if (BAR.get(mDataStartIndext + mShowDataNum-1-i) >= 0.0) {
+                paint.setColor(klineRed);
+                float top = (float) (zero - BAR.get(mDataStartIndext + mShowDataNum-1-i) * rate);
+                if(BAR.get(mDataStartIndext + mShowDataNum-1)<bar)
+                {
+                    paint.setStyle(Paint.Style.STROKE);
+                }else
+                {
+                    paint.setStyle(Paint.Style.FILL);
+                }
+
+                float left =(float) mCandleWidth * (mDataStartIndext + mShowDataNum-1-i)-1;
+                float right =(float) mCandleWidth * (mDataStartIndext + mShowDataNum-i)+1;
+
+                canvas.drawRect(left, top, right, zero, paint);
+            } else {
+                paint.setColor(klineGreen);
+                if(BAR.get(mDataStartIndext + mShowDataNum-1-i)<bar)
+                {
+                    paint.setStyle(Paint.Style.STROKE);
+                }else
+                {
+                    paint.setStyle(Paint.Style.FILL);
+                }
+                float bottom = (float) (zero - BAR.get(mDataStartIndext + mShowDataNum-1-i) * rate);
+
+                float left = (float) mCandleWidth * (mDataStartIndext + mShowDataNum-1-i)-1;
+                float right =(float) mCandleWidth * (mDataStartIndext + mShowDataNum-i)+1;
+
+                canvas.drawRect(left, zero,right, bottom, paint);
+            }
+            if (i != mDataStartIndext) {
+
+
+                float startx =(float) mCandleWidth * (i)+ (float) mCandleWidth / 2;
+                float starty=zero - (float) ((DEA.get(mDataStartIndext + mShowDataNum-1-i)) * rate);
+                float stopx =(float) mCandleWidth * (i+1)+ (float) mCandleWidth / 2;
+                float stopy=dea;
+
+                canvas.drawLine(startx, starty,stopx, dea, whitePaint);
+
+
+                float startxx =(float) mCandleWidth * (i)+ (float) mCandleWidth / 2;
+                float startyy=zero - (float) ((DIF.get(mDataStartIndext + mShowDataNum-1-i)) * rate);
+                float stopxx =(float) mCandleWidth * (i+1)+ (float) mCandleWidth / 2;
+                float stopyy=dif;
+                canvas.drawLine(startxx,startyy,stopxx,stopyy,yellowPaint);
+            }
+            bar = BAR.get(BAR.size()-1-i);
+            dea = zero - (float) ((DEA.get(mDataStartIndext + mShowDataNum-1-i)) * rate);
+            dif = zero - (float) ((DIF.get(mDataStartIndext + mShowDataNum-1-i)) * rate);
+        }*/
+
+
+
+       for (int i = mDataStartIndext; i < mDataStartIndext + mShowDataNum && i < BAR.size(); i++) {
+
             // 绘制矩形
             if (BAR.get(i) >= 0.0) {
                 paint.setColor(klineRed);
                 float top = (float) (zero - BAR.get(i) * rate);
+                if(BAR.get(i)<bar)
+                {
+                    paint.setStyle(Paint.Style.STROKE);
+                }else
+                {
+                    paint.setStyle(Paint.Style.FILL);
+                }
 
                 canvas.drawRect(viewWidth - 1 - (float) mCandleWidth
                         * (i + 1 - mDataStartIndext), top, viewWidth - 2
                         - (float) mCandleWidth * (i - mDataStartIndext), zero, paint);
             } else {
                 paint.setColor(klineGreen);
+                if(BAR.get(i)<bar)
+                {
+                    paint.setStyle(Paint.Style.STROKE);
+                }else
+                {
+                    paint.setStyle(Paint.Style.FILL);
+                }
                 float bottom = (float) (zero - BAR.get(i) * rate);
                 canvas.drawRect(viewWidth - 1 - (float) mCandleWidth
                         * (i + 1 - mDataStartIndext), zero, viewWidth - 2
                         - (float) mCandleWidth * (i - mDataStartIndext), bottom, paint);
             }
             if (i != mDataStartIndext) {
+
                 canvas.drawLine(viewWidth - 1 - (float) mCandleWidth
                                 * (i + 1 - mDataStartIndext) + (float) mCandleWidth / 2,
                         zero - (float) ((DEA.get(i)) * rate), viewWidth - 2
@@ -951,6 +1062,7 @@ public class KView extends GridChartKView {
                                 - (float) mCandleWidth * (i - mDataStartIndext)
                                 + (float) mCandleWidth / 2, dif, yellowPaint);
             }
+            bar = BAR.get(i);
             dea = zero - (float) ((DEA.get(i)) * rate);
             dif = zero - (float) ((DIF.get(i)) * rate);
         }
@@ -1293,25 +1405,31 @@ public class KView extends GridChartKView {
 
     //K线均线
     private void initMALineData() {
-        MALineEntity MA5 = new MALineEntity();
-        MA5.setTitle("MA5");
-        MA5.setLineColor(kline5dayline);
-        MA5.setLineData(initMA(mOHLCData, 5));
-
-        MALineEntity MA10 = new MALineEntity();
-        MA10.setTitle("MA10");
-        MA10.setLineColor(kline10dayline);
-        MA10.setLineData(initMA(mOHLCData, 10));
-
-        MALineEntity MA30 = new MALineEntity();
-        MA30.setTitle("MA30");
-        MA30.setLineColor(kline30dayline);
-        MA30.setLineData(initMA(mOHLCData, 30));
-
         MALineData = new ArrayList<MALineEntity>();
-        MALineData.add(MA5);
-        MALineData.add(MA10);
-        MALineData.add(MA30);
+        if(mHave5Line)
+        {
+            MALineEntity MA5 = new MALineEntity();
+            MA5.setTitle("MA5");
+            MA5.setLineColor(kline5dayline);
+            MA5.setLineData(initMA(mOHLCData, 5));
+            MALineData.add(MA5);
+
+        }
+        if(mHave10Line) {
+            MALineEntity MA10 = new MALineEntity();
+            MA10.setTitle("MA10");
+            MA10.setLineColor(kline10dayline);
+            MA10.setLineData(initMA(mOHLCData, 10));
+            MALineData.add(MA10);
+        }
+        if(mHave30Line) {
+            MALineEntity MA30 = new MALineEntity();
+            MA30.setTitle("MA30");
+            MA30.setLineColor(kline30dayline);
+            MA30.setLineData(initMA(mOHLCData, 30));
+            MALineData.add(MA30);
+        }
+
     }
 
     //量能线均线

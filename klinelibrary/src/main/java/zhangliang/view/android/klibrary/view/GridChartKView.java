@@ -180,7 +180,11 @@ public class GridChartKView extends View {
 
 	private void init(Context context) {
 		mContext = context;
-		mBackGround = context.getResources().getColor(R.color.klinebg);
+		mBackGround = getKLineBackGround();
+		if(mBackGround==0){
+			mBackGround = context.getResources().getColor(R.color.white);
+		}
+
 		DEFAULT_AXIS_TITLE_COLOR = context.getResources().getColor(R.color.kViewztblack);
 		DEFAULT_LONGI_LAITUDE_COLOR = context.getResources().getColor(R.color.kViewjwblack);
 		DEFAULT_AXIS_XYCLICK_COLOR= context.getResources().getColor(R.color.kViewclickblack);
@@ -513,7 +517,7 @@ public void setShowTitle(boolean isshow)
 	}
 
 
-	public int getBackGround() {
+	public int getKLineBackGround() {
 		return mBackGround;
 	}
 
