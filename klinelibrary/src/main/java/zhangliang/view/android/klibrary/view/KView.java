@@ -384,7 +384,7 @@ public class KView extends GridChartKView {
         if (y > super.getTitleHeight() + Up_chart_margin + super.getUperChartHeight()) {
             y = super.getTitleHeight() + Up_chart_margin + super.getUperChartHeight();
         }
-        if (super.getTouchPoint() != null || mOHLCData != null && mOHLCData.size() > 0) {
+        if (super.getTouchPoint() != null && mOHLCData != null && mOHLCData.size() > 0) {
             setAxisXClickTitle(String.valueOf(mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getTime3()));
 
             float roate = 1 - (y - super.getTitleHeight() - Up_chart_margin) / super.getUperChartHeight();
@@ -970,7 +970,7 @@ public class KView extends GridChartKView {
         double bar=0;
 
        for (int i = mDataStartIndext; i < mDataStartIndext + mShowDataNum && i < BAR.size(); i++) {
-           if((mDataStartIndext+mDataStartIndext + mShowDataNum-1-i)>BAR.size())
+           if((mDataStartIndext+mDataStartIndext + mShowDataNum-1-i)>=BAR.size())
                return;
             // 绘制矩形
             if (BAR.get(mDataStartIndext+mDataStartIndext + mShowDataNum-1-i) >= 0.0) {

@@ -77,7 +77,11 @@ public class GridChartKView extends View {
 	private int DEFAULT_AXIS_Y_MAX_TITLE_LENGTH = 7;
 
 	/** 默认经线数 */
-	public static final int DEFAULT_LOGITUDE_NUM = 8;
+	public  int DEFAULT_LOGITUDE_NUM = 8;
+	public void setLogitudeNum(int num)
+	{
+		DEFAULT_LOGITUDE_NUM = num;
+	}
 
 	/** 默认边框的颜色 */
 	public static final int DEFAULT_BORDER_COLOR = Color.RED;
