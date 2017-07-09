@@ -142,7 +142,7 @@ public class KView extends GridChartKView {
     public static int kline5dayline = 0x535d66;
 
     private boolean mHave5Line = true;
-    private void setHave5Line(boolean have5Line)
+    public void setHave5Line(boolean have5Line)
     {
         mHave5Line=have5Line;
     }
@@ -152,7 +152,7 @@ public class KView extends GridChartKView {
      **/
     public static int kline10dayline = 0x535d66;
     private boolean mHave10Line = true;
-    private void setHave10Line(boolean have10Line)
+    public void setHave10Line(boolean have10Line)
     {
         mHave10Line=have10Line;
     }
@@ -164,7 +164,7 @@ public class KView extends GridChartKView {
      **/
     public static int kline30dayline = 0x535d66;
     private boolean mHave30Line = true;
-    private void setHave30Line(boolean have30Line)
+    public void setHave30Line(boolean have30Line)
     {
         mHave30Line=have30Line;
     }
@@ -206,6 +206,12 @@ public class KView extends GridChartKView {
     private Resources res;
 
     private boolean isArrow = false;
+
+    public int mBubbleColor = DEFAULT_AXIS_TITLE_COLOR;
+    public void setBubbleColor(int bubbleColor)
+    {
+        mBubbleColor = bubbleColor;
+    }
 
     //
     private int maxValueTopColor = DEFAULT_AXIS_TITLE_COLOR;
@@ -745,6 +751,10 @@ public class KView extends GridChartKView {
                 canvas.drawLine(startX, open, startX, low, redPaint);
             }
 
+            Paint mBubblePaint = new Paint();
+            mBubblePaint.setTextSize(DEFAULT_AXIS_TITLE_SIZE);
+            mBubblePaint.setColor(mBubbleColor);
+
             Rect rect = new Rect();
             //画最大和最小值
             if (mDataStartIndext + i == maxIndex) {
@@ -768,7 +778,7 @@ public class KView extends GridChartKView {
                         float rightr=startX+65+w;
                         float bottomr=high - super.getTitleHeight() + rect.height();
                         drawRoundRect(canvas,leftr,topr,rightr,bottomr,maxValueTopColor);
-                        canvas.drawText(maxPrice, startX + 50, high - super.getTitleHeight() + rect.height() / 2, paint);
+                        canvas.drawText(maxPrice, startX + 50, high - super.getTitleHeight() + rect.height() / 2, mBubblePaint);
 
                         //画三角
                         Paint paint1 = new Paint();
@@ -800,7 +810,7 @@ public class KView extends GridChartKView {
                         float rightr=startX-35;
                         float bottomr=high - super.getTitleHeight() + rect.height();
                         drawRoundRect(canvas,leftr,topr,rightr,bottomr,maxValueTopColor);
-                        canvas.drawText(maxPrice, startX - 50-w, high - super.getTitleHeight() + rect.height() / 2, paint);
+                        canvas.drawText(maxPrice, startX - 50-w, high - super.getTitleHeight() + rect.height() / 2, mBubblePaint);
 
                         //画三角
                         Paint paint1 = new Paint();
@@ -842,7 +852,7 @@ public class KView extends GridChartKView {
                         float rightr=startX+65+w;
                         float bottomr=low + super.getTitleHeight() + rect.height();
                         drawRoundRect(canvas,leftr,topr,rightr,bottomr,minValueBottomColor);
-                        canvas.drawText(minPrice, startX + 50, low + super.getTitleHeight() + rect.height() / 2, paint);
+                        canvas.drawText(minPrice, startX + 50, low + super.getTitleHeight() + rect.height() / 2, mBubblePaint);
 
                         //画三角
                         Paint paint1 = new Paint();
@@ -875,7 +885,7 @@ public class KView extends GridChartKView {
                         float rightr=startX-35;
                         float bottomr=low + super.getTitleHeight() + rect.height();
                         drawRoundRect(canvas,leftr,topr,rightr,bottomr,minValueBottomColor);
-                        canvas.drawText(minPrice, startX - 50 - w, low + super.getTitleHeight() + rect.height() / 2, paint);
+                        canvas.drawText(minPrice, startX - 50 - w, low + super.getTitleHeight() + rect.height() / 2, mBubblePaint);
 
                         //画三角
                         Paint paint1 = new Paint();
@@ -959,13 +969,14 @@ public class KView extends GridChartKView {
 
         double bar=0;
 
-       /* for (int i = mDataStartIndext; i < mDataStartIndext + mShowDataNum && i < BAR.size(); i++) {
-
+       for (int i = mDataStartIndext; i < mDataStartIndext + mShowDataNum && i < BAR.size(); i++) {
+           if((mDataStartIndext+mDataStartIndext + mShowDataNum-1-i)>BAR.size())
+               return;
             // 绘制矩形
-            if (BAR.get(mDataStartIndext + mShowDataNum-1-i) >= 0.0) {
+            if (BAR.get(mDataStartIndext+mDataStartIndext + mShowDataNum-1-i) >= 0.0) {
                 paint.setColor(klineRed);
-                float top = (float) (zero - BAR.get(mDataStartIndext + mShowDataNum-1-i) * rate);
-                if(BAR.get(mDataStartIndext + mShowDataNum-1)<bar)
+                float top = (float) (zero - BAR.get(mDataStartIndext+mDataStartIndext + mShowDataNum-1-i) * rate);
+                if(BAR.get(mDataStartIndext+mDataStartIndext + mShowDataNum-1-i)>bar)
                 {
                     paint.setStyle(Paint.Style.STROKE);
                 }else
@@ -973,51 +984,47 @@ public class KView extends GridChartKView {
                     paint.setStyle(Paint.Style.FILL);
                 }
 
-                float left =(float) mCandleWidth * (mDataStartIndext + mShowDataNum-1-i)-1;
-                float right =(float) mCandleWidth * (mDataStartIndext + mShowDataNum-i)+1;
+                float left =(float) mCandleWidth * (i-mDataStartIndext)-1;
+                float right =(float) mCandleWidth * (i-mDataStartIndext+1)-2;;
 
                 canvas.drawRect(left, top, right, zero, paint);
             } else {
                 paint.setColor(klineGreen);
-                if(BAR.get(mDataStartIndext + mShowDataNum-1-i)<bar)
+                if(BAR.get(mDataStartIndext+mDataStartIndext + mShowDataNum-1-i)>bar)
                 {
                     paint.setStyle(Paint.Style.STROKE);
                 }else
                 {
                     paint.setStyle(Paint.Style.FILL);
                 }
-                float bottom = (float) (zero - BAR.get(mDataStartIndext + mShowDataNum-1-i) * rate);
+                float bottom = (float) (zero - BAR.get(mDataStartIndext+mDataStartIndext + mShowDataNum-1-i) * rate);
 
-                float left = (float) mCandleWidth * (mDataStartIndext + mShowDataNum-1-i)-1;
-                float right =(float) mCandleWidth * (mDataStartIndext + mShowDataNum-i)+1;
+                float left =(float) mCandleWidth * (i-mDataStartIndext)-1;
+                float right =(float) mCandleWidth * (i-mDataStartIndext+1)-2;
 
                 canvas.drawRect(left, zero,right, bottom, paint);
             }
-            if (i != mDataStartIndext) {
 
+           if (i != mDataStartIndext) {
+               float startx =viewWidth - 1 - (float) mCandleWidth * (mDataStartIndext + mShowDataNum-i)-(float) mCandleWidth / 2;
+               float starty=dea;
+               float stopx =viewWidth - 2 - (float) mCandleWidth * (mDataStartIndext + mShowDataNum-i-1) - (float) mCandleWidth / 2;
+               float stopy=zero - (float) ((DEA.get(mDataStartIndext+mDataStartIndext + mShowDataNum-1-i)) * rate);
 
-                float startx =(float) mCandleWidth * (i)+ (float) mCandleWidth / 2;
-                float starty=zero - (float) ((DEA.get(mDataStartIndext + mShowDataNum-1-i)) * rate);
-                float stopx =(float) mCandleWidth * (i+1)+ (float) mCandleWidth / 2;
-                float stopy=dea;
+               canvas.drawLine(startx, starty, stopx, stopy, whitePaint);
 
-                canvas.drawLine(startx, starty,stopx, dea, whitePaint);
+               canvas.drawLine(viewWidth - 1 - (float) mCandleWidth * (mDataStartIndext + mShowDataNum-i) - (float) mCandleWidth / 2,dif
+                       , viewWidth - 2
+                               - (float) mCandleWidth * (mDataStartIndext + mShowDataNum-i-1)
+                               - (float) mCandleWidth / 2, zero - (float) ((DIF.get(mDataStartIndext+mDataStartIndext + mShowDataNum-1-i)) * rate), yellowPaint);
+           }
+           bar = BAR.get(mDataStartIndext+mDataStartIndext + mShowDataNum-1-i);
+           dea = zero - (float) ((DEA.get(mDataStartIndext+mDataStartIndext + mShowDataNum-1-i)) * rate);
+           dif = zero - (float) ((DIF.get(mDataStartIndext+mDataStartIndext + mShowDataNum-1-i)) * rate);
 
+        }
 
-                float startxx =(float) mCandleWidth * (i)+ (float) mCandleWidth / 2;
-                float startyy=zero - (float) ((DIF.get(mDataStartIndext + mShowDataNum-1-i)) * rate);
-                float stopxx =(float) mCandleWidth * (i+1)+ (float) mCandleWidth / 2;
-                float stopyy=dif;
-                canvas.drawLine(startxx,startyy,stopxx,stopyy,yellowPaint);
-            }
-            bar = BAR.get(BAR.size()-1-i);
-            dea = zero - (float) ((DEA.get(mDataStartIndext + mShowDataNum-1-i)) * rate);
-            dif = zero - (float) ((DIF.get(mDataStartIndext + mShowDataNum-1-i)) * rate);
-        }*/
-
-
-
-       for (int i = mDataStartIndext; i < mDataStartIndext + mShowDataNum && i < BAR.size(); i++) {
+/*       for (int i = mDataStartIndext; i < mDataStartIndext + mShowDataNum && i < BAR.size(); i++) {
 
             // 绘制矩形
             if (BAR.get(i) >= 0.0) {
@@ -1065,7 +1072,7 @@ public class KView extends GridChartKView {
             bar = BAR.get(i);
             dea = zero - (float) ((DEA.get(i)) * rate);
             dif = zero - (float) ((DIF.get(i)) * rate);
-        }
+        }*/
 
         float margin_right = DEFAULT_AXIS_MARGIN_RIGHT;
         if(super.isInnerYAxis)
