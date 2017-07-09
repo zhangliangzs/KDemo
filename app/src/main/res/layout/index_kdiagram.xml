@@ -144,6 +144,7 @@
 
     <zhangliang.view.android.klibrary.view.KView
         android:id="@+id/my_charts_view"
+        android:background="@color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1" />
