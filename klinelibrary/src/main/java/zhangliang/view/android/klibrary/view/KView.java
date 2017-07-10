@@ -56,7 +56,7 @@ public class KView extends GridChartKView {
     /**
      * 显示的OHLC数据起始位置
      */
-    private int mDataStartIndext;
+    private int mDataStartIndext = 0;
 
     /**
      * 显示的OHLC数据个数
@@ -1330,10 +1330,12 @@ public class KView extends GridChartKView {
 
     }
     private void setCurrentData() {
-
-        initShowDataNum();
-
-        setMaxMinPrice();
+        try {
+            initShowDataNum();
+            setMaxMinPrice();
+        }catch (Exception e)
+        {
+        }
     }
 
 

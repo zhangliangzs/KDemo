@@ -87,7 +87,7 @@ public class GridChartKView extends View {
 	public static final int DEFAULT_BORDER_COLOR = Color.RED;
 
 	//是否显示维线
-	private boolean isShowLatitude = true;
+	private boolean isShowLatitude = false;
 
 	public void setShowLatitude(boolean show)
 	{
@@ -680,11 +680,19 @@ public void setShowTitle(boolean isshow)
 		return String.valueOf(valueLength / length);
 	}
 
-
+	private boolean showCrossCLick =false;
+public void setCrossCLick(boolean have)
+{
+	this.showCrossCLick = have;
+}
 	/**
 	 * 单点击事件
 	 */
 	protected void drawWithFingerClick(Canvas canvas) {
+
+		if(!showCrossCLick)
+			return;
+
 		Paint mPaint = new Paint();
 		mPaint.setColor(DEFAULT_AXIS_XYCLICK_COLOR);
 		mPaint.setStrokeWidth(2);
@@ -694,9 +702,6 @@ public void setShowTitle(boolean isshow)
 			drawAlphaXTextBox(getAxisXClickTitle(),canvas);
 		if(!getAxisYClickTitle().equals(""))
 			drawAlphaYTextBox(getAxisYClickTitle(),canvas);
-		//	drawAlphaTopTextBox("当日行情------开:2926.48  高:2930.00 低:2930.47 收:2927.71",canvas);
-		//	drawAlphaMiddleTextBox("量:483.343  MA5:888 MA10:33333",canvas);
-		//	drawAlphaBottomTextBox("MACD(12,26,9) DIF:0.10 DEA:0.00 MACD:0.19",canvas);
 
 		if (touchPoint!=null) {
 
