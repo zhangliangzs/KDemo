@@ -118,19 +118,19 @@ public class GridChartKView extends View {
 
 	// /////////////属性////////////////
 	/** 背景色 */
-	private int mBackGround;
+	private int mBackGround = Color.WHITE;
 
 	/** 坐标轴XY颜色 */
-	private int mAxisColor;
+	private int mAxisColor= Color.WHITE;
 
 	/** 经纬线颜色 */
-	private int mLongiLatitudeColor;
+	private int mLongiLatitudeColor= Color.WHITE;
 
 	/** 虚线效果 */
 	private PathEffect mDashEffect;
 	protected boolean isInnerYAxis = false;
 	/** 边线色 */
-	private int mBorderColor;
+	private int mBorderColor= Color.WHITE;
 
 	/** 上表高度 */
 	public float mUperChartHeight;
@@ -138,6 +138,14 @@ public class GridChartKView extends View {
 	public float mMiddleChartHeight;
 	/** 下表高度 */
 	public float mLowerChartHeight;
+
+	private boolean isHaveBorder = false;
+
+	public void setdrawBorders(boolean haveBorder)
+	{
+		this.isHaveBorder= haveBorder;
+	}
+
 
 	public float Up_title_height=2*TITLE_HEIGHT;
 	public float Middle_title_height=TITLE_HEIGHT;
@@ -316,8 +324,11 @@ public void setShowTitle(boolean isshow)
 
 		MIDDLE_CHART_TOP = UPER_CHART_TOP+mUperChartHeight+Up_chart_margin+Middle_title_height+TITLE_HEIGHT+mBuyOrSellChartHeight;
 		LOWER_CHART_TOP =MIDDLE_CHART_TOP+mMiddleChartHeight+Down_title_height;
-		// 绘制边框
-		drawBorders(canvas, viewHeight, viewWidth);
+		if(isHaveBorder)
+		{
+			// 绘制边框
+			drawBorders(canvas, viewHeight, viewWidth);
+		}
 		// 绘制纬线
 		drawLatitudes(canvas, viewWidth, latitudeSpacing);
 		// 绘制经线

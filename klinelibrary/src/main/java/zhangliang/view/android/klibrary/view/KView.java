@@ -62,7 +62,10 @@ public class KView extends GridChartKView {
      * 显示的OHLC数据个数
      */
     private int mShowDataNum;
-    private int showNum = 0;
+    public void setShowDateNum(int showDataNum)
+    {
+        this.mShowDataNum = showDataNum;
+    }
 
     /**
      * 当前数据的最大最小值
@@ -111,7 +114,7 @@ public class KView extends GridChartKView {
     /**
      * 默认显示的Candle数
      */
-    private final static int DEFAULT_CANDLE_NUM = 240;
+    private final static int DEFAULT_CANDLE_NUM = 40;
 
     /**
      * 最小可识别的移动距离
@@ -158,6 +161,11 @@ public class KView extends GridChartKView {
     }
 
 
+    private float lineWidth = 1f;
+    public void setLineWidth(float lineWidth)
+    {
+        this.lineWidth = lineWidth;
+    }
 
     /**
      * 默认30日均线颜色
@@ -181,9 +189,9 @@ public class KView extends GridChartKView {
     {
         this.isUpFill = upfill;
     }
-    public void setDownFill(boolean dowm)
+    public void setDownFill(boolean down)
     {
-        this.isDownFill = dowm;
+        this.isDownFill = down;
     }
 
     public void setUpColor(int color)
@@ -930,10 +938,10 @@ public class KView extends GridChartKView {
 
         Paint whitePaint = new Paint();
         whitePaint.setColor(kline10dayline);
-        whitePaint.setStrokeWidth(2);
+        whitePaint.setStrokeWidth(lineWidth);
         Paint yellowPaint = new Paint();
         yellowPaint.setColor(kline5dayline);
-        yellowPaint.setStrokeWidth(2);
+        yellowPaint.setStrokeWidth(lineWidth);
 
         Paint textPaint = new Paint();
         textPaint.setColor(super.getAxisColor());
@@ -1101,15 +1109,15 @@ public class KView extends GridChartKView {
 
         Paint whitePaint = new Paint();
         whitePaint.setColor(Color.RED);
-        whitePaint.setStrokeWidth(2);
+        whitePaint.setStrokeWidth(lineWidth);
 
         Paint yellowPaint = new Paint();
         yellowPaint.setColor(Color.GREEN);
-        yellowPaint.setStrokeWidth(2);
+        yellowPaint.setStrokeWidth(lineWidth);
 
         Paint magentaPaint = new Paint();
         magentaPaint.setColor(Color.MAGENTA);
-        magentaPaint.setStrokeWidth(2);
+        magentaPaint.setStrokeWidth(lineWidth);
 
 
         Paint textPaint = new Paint();
@@ -1247,7 +1255,7 @@ public class KView extends GridChartKView {
             float startX = 0;
             float startY = 0;
             Paint paint = new Paint();
-            paint.setStrokeWidth(2);
+            paint.setStrokeWidth(lineWidth);
             paint.setColor(lineEntity.getLineColor());
             paint.setTextSize(DEFAULT_AXIS_TITLE_SIZE);
 
@@ -1283,7 +1291,7 @@ public class KView extends GridChartKView {
             float startX = 0;
             float startY = 0;
             Paint paint = new Paint();
-            paint.setStrokeWidth(2);
+            paint.setStrokeWidth(lineWidth);
             paint.setColor(lineEntity.getLineColor());
             paint.setTextSize(DEFAULT_AXIS_TITLE_SIZE);
 
