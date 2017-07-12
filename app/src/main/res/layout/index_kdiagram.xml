@@ -142,12 +142,22 @@
         </LinearLayout>
     </LinearLayout>
 
-    <zhangliang.view.android.klibrary.view.KView
-        android:id="@+id/my_charts_view"
-        android:background="@color/white"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        >
+        <zhangliang.view.android.klibrary.view.KView
+            android:id="@+id/my_charts_view"
+            android:background="@color/white"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+           />
+<!--        <zhangliang.view.android.klibrary.view.DrawView
+            android:layout_width="match_parent"
+            android:layout_height="400dp" />-->
+    </RelativeLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"

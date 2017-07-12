@@ -764,7 +764,7 @@ public class KView extends GridChartKView {
             mBubblePaint.setColor(mBubbleColor);
 
             Rect rect = new Rect();
-            //画最大和最小值
+            //画最大
             if (mDataStartIndext + i == maxIndex) {
                 String maxPrice = entity.getHighPrice() + "";
                 paint.getTextBounds(maxPrice, 0, 1, rect);
@@ -795,10 +795,10 @@ public class KView extends GridChartKView {
                         paint1.setStrokeWidth(2);              //线宽
                         paint1.setStyle(Paint.Style.FILL);
                         Path path=new Path();
-                        path.moveTo(startX,high);
+                        path.moveTo(startX+15,high-15);
                         path.lineTo(leftr,bottomr-mCornerRadius);
                         path.lineTo(leftr+mCornerRadius,bottomr);
-                        path.moveTo(startX,high);
+                        path.moveTo(startX+15,high-15);
                         canvas.drawPath(path,paint1);
                     }
 
@@ -827,10 +827,10 @@ public class KView extends GridChartKView {
                         paint1.setStrokeWidth(2);              //线宽
                         paint1.setStyle(Paint.Style.FILL);
                         Path path=new Path();
-                        path.moveTo(startX,high);
+                        path.moveTo(startX-15,high-15);
                         path.lineTo(rightr,bottomr-mCornerRadius);
                         path.lineTo(rightr-mCornerRadius,bottomr);
-                        path.moveTo(startX,high);
+                        path.moveTo(startX-15,high-15);
                         canvas.drawPath(path,paint1);
                     }
 
@@ -869,10 +869,10 @@ public class KView extends GridChartKView {
                         paint1.setStrokeWidth(2);              //线宽
                         paint1.setStyle(Paint.Style.FILL);
                         Path path=new Path();
-                        path.moveTo(startX,low);
+                        path.moveTo(startX+15,low+15);
                         path.lineTo(leftr,topr+mCornerRadius);
                         path.lineTo(leftr+mCornerRadius,topr);
-                        path.moveTo(startX,low);
+                        path.moveTo(startX+15,low+15);
                         canvas.drawPath(path,paint1);
                     }
 
@@ -902,10 +902,10 @@ public class KView extends GridChartKView {
                         paint1.setStrokeWidth(2);              //线宽
                         paint1.setStyle(Paint.Style.FILL);
                         Path path=new Path();
-                        path.moveTo(startX,low);
+                        path.moveTo(startX-15,low+15);
                         path.lineTo(rightr,topr+mCornerRadius);
                         path.lineTo(rightr-mCornerRadius,topr);
-                        path.moveTo(startX,low);
+                        path.moveTo(startX-15,low+15);
                         canvas.drawPath(path,paint1);
 
                     }
@@ -928,6 +928,8 @@ public class KView extends GridChartKView {
     }
 
     private void drawMACD(Canvas canvas) {
+
+        try {
         if (mOHLCData == null || mOHLCData.size() <= 0) {
             return;
         }
@@ -1094,9 +1096,9 @@ public class KView extends GridChartKView {
                 + lowerHight / 2 + DEFAULT_AXIS_TITLE_SIZE, textPaint);
         canvas.drawText(new DecimalFormat("#.##").format(low), super.getWidth() - margin_right, lowertop + lowerHight,
                 textPaint);
-        // } catch (Exception e) {
+         } catch (Exception e) {
 
-        //}
+        }
     }
 
     private void drawKDJ(Canvas canvas) {
