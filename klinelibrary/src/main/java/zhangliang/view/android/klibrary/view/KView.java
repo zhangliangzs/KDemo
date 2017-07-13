@@ -243,6 +243,11 @@ public class KView extends GridChartKView {
     }
 
 
+    private boolean showMaxValue=false;
+    public void setShowMaxValue(boolean max)
+    {
+        this.showMaxValue = max;
+    }
     private VelocityTracker mVelocityTracker;
     private int mMinVelocity;
     private int mMaxVelocity;
@@ -1092,10 +1097,14 @@ public class KView extends GridChartKView {
 
         canvas.drawText(new DecimalFormat("#.##").format(high), super.getWidth() - margin_right, lowertop
                 + DEFAULT_AXIS_TITLE_SIZE - 2, textPaint);
-        canvas.drawText(new DecimalFormat("#.##").format(0), super.getWidth() - margin_right, lowertop
-                + lowerHight / 2 + DEFAULT_AXIS_TITLE_SIZE, textPaint);
-        canvas.drawText(new DecimalFormat("#.##").format(low), super.getWidth() - margin_right, lowertop + lowerHight,
-                textPaint);
+            if(!showMaxValue)
+            {
+                canvas.drawText(new DecimalFormat("#.##").format(0), super.getWidth() - margin_right, lowertop
+                        + lowerHight / 2 + DEFAULT_AXIS_TITLE_SIZE, textPaint);
+                canvas.drawText(new DecimalFormat("#.##").format(low), super.getWidth() - margin_right, lowertop + lowerHight,
+                        textPaint);
+            }
+
          } catch (Exception e) {
 
         }
@@ -1214,9 +1223,10 @@ public class KView extends GridChartKView {
         }
 
             canvas.drawText(new DecimalFormat("#.##").format(mMaxVol), super.getWidth() - margin_right - 1, super.LOWER_CHART_TOP+TITLE_HEIGHT - super.Down_title_height - super.mMiddleChartHeight, textPaint);
+        if(!showMaxValue) {
             canvas.drawText(new DecimalFormat("#.##").format((mMaxVol) / 2), super.getWidth() - margin_right - 1, super.LOWER_CHART_TOP - super.Down_title_height - super.mMiddleChartHeight / 2, textPaint);
             canvas.drawText(new DecimalFormat("#.##").format(0), super.getWidth() - margin_right - 1, super.LOWER_CHART_TOP - super.Down_title_height, textPaint);
-
+        }
 
 
 

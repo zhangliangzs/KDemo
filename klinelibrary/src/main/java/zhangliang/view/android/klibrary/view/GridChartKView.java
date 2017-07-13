@@ -45,7 +45,11 @@ public class GridChartKView extends View {
 	private static int DEFAULT_LONGI_LAITUDE_COLOR = 0x3b3b3d;
 
 	/** 默认上表纬线数 */
-	public static final int DEFAULT_UPER_LATITUDE_NUM = 4;
+	public  int DEFAULT_UPER_LATITUDE_NUM = 3;
+	public void setUperLatitude(int num)
+	{
+		this.DEFAULT_UPER_LATITUDE_NUM = num;
+	}
 	/** 默认中表纬线数 */
 	private static final int DEFAULT_MIDDLE_LATITUDE_NUM = 2;
 	/** 默认下表纬线数 */
@@ -140,6 +144,7 @@ public class GridChartKView extends View {
 	public float mLowerChartHeight;
 
 	private boolean isHaveBorder = false;
+
 
 	public void setdrawBorders(boolean haveBorder)
 	{
