@@ -28,7 +28,6 @@ import zhangliang.view.android.klibrary.entity.MACD;
 import zhangliang.view.android.klibrary.entity.MALineEntity;
 import zhangliang.view.android.klibrary.entity.MarketChartData;
 
-
 /**
  * Created by zhangliang on 16/11/5.
  * QQ:1179980507
@@ -662,7 +661,17 @@ public class KView extends GridChartKView {
 
             for (int i = 0; i < longtitudeNum && mDataStartIndext + i < mOHLCData.size(); i++) {
 
-                TitleX.add(String.valueOf(mOHLCData.get(i+ mDataStartIndext).getTime2()));
+
+                String  time = String.valueOf(mOHLCData.get(i+ mDataStartIndext).getTime4());
+                if(time.equals("00:00:00"))
+                {
+                    time = String.valueOf(mOHLCData.get(i+ mDataStartIndext).getTime5());
+                }else
+                {
+                    time = String.valueOf(mOHLCData.get(i+ mDataStartIndext).getTime2());
+                }
+                TitleX.add(time);
+
             }
         }
 

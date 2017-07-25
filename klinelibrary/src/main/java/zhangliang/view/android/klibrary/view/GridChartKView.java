@@ -17,13 +17,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import zhangliang.view.android.klibrary.R;
-
 /**
  * Created by zhangliang on 16/11/5.
  * QQ:1179980507
  */
 public class GridChartKView extends View {
 // ////////////默认值////////////////
+
+	public enum Position {
+
+		Top, Bottom
+	}
 	/** 默认背景色 */
 	public static final int DEFAULT_BACKGROUD = 0x090A0B;
 
@@ -172,6 +176,11 @@ public class GridChartKView extends View {
 		this.mBuyOrSellChartHeight = sp2px(mContext,height);;
 
 	}
+	private Position mPosition=Position.Top;
+	public void setXTitlePosition(Position position)
+	{
+		mPosition=position;
+	}
 	public float mBuyOrSellChartHeight=0;
 
 	//经线间隔度
@@ -288,6 +297,11 @@ public void setShowTitle(boolean isshow)
 	}
 	setTitleHeight(height);
 }
+
+	public void setXTitlePos()
+	{
+
+	}
 	private void setTitleHeight(float height)
 	{
 		Up_title_height=2*height;
@@ -327,7 +341,15 @@ public void setShowTitle(boolean isshow)
 		//###加上表间隔  箭头或者去泡高度
 		UPER_CHART_TOP = Up_title_height+Up_chart_margin;
 
-		MIDDLE_CHART_TOP = UPER_CHART_TOP+mUperChartHeight+Up_chart_margin+Middle_title_height+TITLE_HEIGHT+mBuyOrSellChartHeight;
+		if(mPosition==Position.Top)
+		{
+			MIDDLE_CHART_TOP = UPER_CHART_TOP+mUperChartHeight+Up_chart_margin+Middle_title_height+TITLE_HEIGHT+mBuyOrSellChartHeight;
+			//LOWER_CHART_TOP =MIDDLE_CHART_TOP+mMiddleChartHeight+Down_title_height;
+		}else
+		{
+			MIDDLE_CHART_TOP = UPER_CHART_TOP+mUperChartHeight+Up_chart_margin+Middle_title_height+mBuyOrSellChartHeight;
+
+		}
 		LOWER_CHART_TOP =MIDDLE_CHART_TOP+mMiddleChartHeight+Down_title_height;
 		if(isHaveBorder)
 		{
@@ -517,8 +539,16 @@ public void setShowTitle(boolean isshow)
 
 		for (int i = 0; i < axisXTitles.size(); i++) {
 			float tWidth = paint.measureText(axisXTitles.get(i));
+
 			// 绘制刻度
-			canvas.drawText(axisXTitles.get(i), super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT-longitudeSpacing * (i)-tWidth, MIDDLE_CHART_TOP-Middle_title_height-mBuyOrSellChartHeight, paintAxis);
+			if(Position.Top==mPosition)
+			{
+				canvas.drawText(axisXTitles.get(i), super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT-longitudeSpacing * (i)-tWidth, MIDDLE_CHART_TOP-Middle_title_height-mBuyOrSellChartHeight, paintAxis);
+			}else
+			{
+				canvas.drawText(axisXTitles.get(i), super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT-longitudeSpacing * (i)-tWidth, getHeight(), paintAxis);
+			}
+
 
 		}
 
@@ -749,9 +779,17 @@ public void setCrossCLick(boolean have)
 		float strw = mPaintBoxLine.measureText(content);
 
 		float left = touchPoint.x-strw/2;
-		float top = MIDDLE_CHART_TOP-Middle_title_height-TITLE_HEIGHT-mBuyOrSellChartHeight;
 		float right = touchPoint.x+strw/2;
-		float bottom = MIDDLE_CHART_TOP-Middle_title_height-mBuyOrSellChartHeight;
+		float top = 0;
+		float bottom=0;
+		if(mPosition==Position.Top) {
+			 top = MIDDLE_CHART_TOP-Middle_title_height-TITLE_HEIGHT-mBuyOrSellChartHeight;
+			 bottom = MIDDLE_CHART_TOP-Middle_title_height-mBuyOrSellChartHeight;
+		}else
+		{
+			top =getHeight()-getTitleHeight();
+			bottom =getHeight();
+		}
 
 		canvas.drawRect(left, top, right, bottom, mPaintBox);
 		Paint borderPaint = new Paint();
@@ -761,7 +799,12 @@ public void setCrossCLick(boolean have)
 		canvas.drawLine(left, top, right, top, borderPaint);
 		canvas.drawLine(right, bottom, right, top, borderPaint);
 		canvas.drawLine(right, bottom, left, bottom, borderPaint);
-		canvas.drawText(content, touchPoint.x-strw/2, MIDDLE_CHART_TOP-mBuyOrSellChartHeight-Middle_title_height-2, mPaintBoxLine);
+		if(mPosition==Position.Top) {
+			canvas.drawText(content, touchPoint.x - strw / 2, MIDDLE_CHART_TOP - mBuyOrSellChartHeight - Middle_title_height - 2, mPaintBoxLine);
+		}else
+		{
+			canvas.drawText(content, touchPoint.x - strw / 2, getHeight()-2, mPaintBoxLine);
+		}
 	}
 
 

@@ -31,7 +31,11 @@ public class MarketChartData {
         return sdf.format(time*1000);
     }
     public String getTime4() {
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        return sdf.format(time*1000);
+    }
+    public String getTime5() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return sdf.format(time*1000);
     }
     public void setTime(long time) {
