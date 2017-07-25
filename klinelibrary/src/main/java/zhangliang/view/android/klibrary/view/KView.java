@@ -330,9 +330,22 @@ public class KView extends GridChartKView {
      */
 
     public void drawMAText(List<MALineEntity> MALineData, Canvas canvas, int index, int k5, int k10, int k30) {
-        String ma5text = "MA5:" + new DecimalFormat("#.##").format(MALineData.get(0).getLineData().get(index));
-        String ma10text = "MA10:" + new DecimalFormat("#.##").format(MALineData.get(1).getLineData().get(index));
-        String ma30text = "MA30:" + new DecimalFormat("#.##").format(MALineData.get(2).getLineData().get(index));
+        String ma5text="";
+        String ma10text="";
+        String ma30text="";
+        if(mHave5Line)
+        {
+            ma5text   = "MA5:" + new DecimalFormat("#.##").format(MALineData.get(0).getLineData().get(index));
+        }
+        if(mHave10Line)
+        {
+            ma10text = "MA10:" + new DecimalFormat("#.##").format(MALineData.get(1).getLineData().get(index));
+        }
+        if(mHave30Line)
+        {
+            ma30text = "MA30:" + new DecimalFormat("#.##").format(MALineData.get(2).getLineData().get(index));
+        }
+
         Paint ma5 = new Paint();
         ma5.setColor(k5);
         ma5.setAntiAlias(true);
@@ -390,16 +403,16 @@ public class KView extends GridChartKView {
 
         float y = super.getTouchPoint().y;
         //纠正出界
-        if (y < super.getTitleHeight() + Up_chart_margin) {
-            y = super.getTitleHeight() + Up_chart_margin;
+        if (y < super.Up_title_height + Up_chart_margin) {
+            y = super.Up_title_height+ Up_chart_margin;
         }
-        if (y > super.getTitleHeight() + Up_chart_margin + super.getUperChartHeight()) {
-            y = super.getTitleHeight() + Up_chart_margin + super.getUperChartHeight();
+        if (y > super.Up_title_height + Up_chart_margin + super.getUperChartHeight()) {
+            y = super.Up_title_height + Up_chart_margin + super.getUperChartHeight();
         }
         if (super.getTouchPoint() != null && mOHLCData != null && mOHLCData.size() > 0) {
             setAxisXClickTitle(String.valueOf(mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getTime3()));
 
-            float roate = 1 - (y - super.getTitleHeight() - Up_chart_margin) / super.getUperChartHeight();
+            float roate = 1 - (y - super.Up_title_height - Up_chart_margin) / super.getUperChartHeight();
 
             setAxisYClickTitle(roate * (mMaxPrice - mMinPrice) + mMinPrice + "");
 
@@ -660,7 +673,7 @@ public class KView extends GridChartKView {
         if (null != mOHLCData) {
             int step = (int)Math.floor(mShowDataNum/longtitudeNum);
 
-            for (int i = 0; i < longtitudeNum && mDataStartIndext + i*step < mOHLCData.size(); i++) {
+            for (int i = 0; i < longtitudeNum && mDataStartIndext + (i+1)*step < mOHLCData.size(); i++) {
 
 
                 String  time = String.valueOf(mOHLCData.get((i+1)*step+ mDataStartIndext).getTime4());
@@ -687,7 +700,8 @@ public class KView extends GridChartKView {
             return;
         }
         List<String> TitleY = new ArrayList<String>();
-        float average = (float) ((mMaxPrice - mMinPrice) / latitudeNum) / 10 * 10;
+        float average = (float) ((mMaxPrice - mMinPrice) / getUperChartHeight()) / 10 * 10;
+        average = average*(getUperChartHeight()/latitudeNum);
         average = Float.parseFloat(new DecimalFormat("0000.00").format(average));
         //处理所有Y刻度
         for (float i = 0; i < latitudeNum; i++) {

@@ -495,10 +495,10 @@ public void setShowTitle(boolean isshow)
 				float x=viewWidth-xx;
 
 				// 绘制Y刻度
-				canvas.drawText(axisYTitles.get(i), x, MIDDLE_CHART_TOP-Middle_title_height-TITLE_HEIGHT-mBuyOrSellChartHeight-Up_chart_margin-latitudeSpacing*(i), paintAxis);
+				canvas.drawText(axisYTitles.get(i), x, MIDDLE_CHART_TOP-Middle_title_height-mBuyOrSellChartHeight-Up_chart_margin-latitudeSpacing*(i), paintAxis);
 				if(i==DEFAULT_UPER_LATITUDE_NUM-1)
 				{
-					canvas.drawText(axisYTitles.get(DEFAULT_UPER_LATITUDE_NUM), x, MIDDLE_CHART_TOP-Middle_title_height-TITLE_HEIGHT-mBuyOrSellChartHeight-Up_chart_margin-latitudeSpacing*(DEFAULT_UPER_LATITUDE_NUM), paintAxis);
+					canvas.drawText(axisYTitles.get(DEFAULT_UPER_LATITUDE_NUM), x, MIDDLE_CHART_TOP-Middle_title_height-mBuyOrSellChartHeight-Up_chart_margin-latitudeSpacing*(DEFAULT_UPER_LATITUDE_NUM), paintAxis);
 
 				}
 			}
@@ -897,9 +897,9 @@ public void setCrossCLick(boolean have)
 			value = sp2px(mContext,40);
 		}
 		float left = super.getWidth()-value;
-		float top = touchPoint.y-strh/2>MIDDLE_CHART_TOP-Middle_title_height-TITLE_HEIGHT-Up_chart_margin-strh/2?MIDDLE_CHART_TOP-Middle_title_height-TITLE_HEIGHT-Up_chart_margin-strh/2:touchPoint.y-strh/2;
+		float top = touchPoint.y-strh/2>MIDDLE_CHART_TOP-Middle_title_height-Up_chart_margin-strh/2?MIDDLE_CHART_TOP-Middle_title_height-Up_chart_margin-strh/2:touchPoint.y-strh/2;
 		float right = super.getWidth()-2;
-		float bottom = touchPoint.y+strh/2>MIDDLE_CHART_TOP-Middle_title_height-TITLE_HEIGHT-Up_chart_margin+strh/2?MIDDLE_CHART_TOP-Middle_title_height-TITLE_HEIGHT-Up_chart_margin+strh/2:touchPoint.y+strh/2;
+		float bottom = touchPoint.y+strh/2>MIDDLE_CHART_TOP-Middle_title_height-Up_chart_margin+strh/2?MIDDLE_CHART_TOP-Middle_title_height-Up_chart_margin+strh/2:touchPoint.y+strh/2;
 
 		canvas.drawRect(left, top-3, right, bottom+3, mPaintBox);
 		Paint borderPaint = new Paint();
