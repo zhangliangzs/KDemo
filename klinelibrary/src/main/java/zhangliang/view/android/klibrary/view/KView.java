@@ -658,17 +658,18 @@ public class KView extends GridChartKView {
         List<String> TitleX = new ArrayList<String>();
 
         if (null != mOHLCData) {
+            int step = (int)Math.floor(mShowDataNum/longtitudeNum);
 
-            for (int i = 0; i < longtitudeNum && mDataStartIndext + i < mOHLCData.size(); i++) {
+            for (int i = 0; i < longtitudeNum && mDataStartIndext + i*step < mOHLCData.size(); i++) {
 
 
-                String  time = String.valueOf(mOHLCData.get(i+ mDataStartIndext).getTime4());
+                String  time = String.valueOf(mOHLCData.get((i+1)*step+ mDataStartIndext).getTime4());
                 if(time.equals("00:00:00"))
                 {
-                    time = String.valueOf(mOHLCData.get(i+ mDataStartIndext).getTime5());
+                    time = String.valueOf(mOHLCData.get((i+1)*step+ mDataStartIndext).getTime5());
                 }else
                 {
-                    time = String.valueOf(mOHLCData.get(i+ mDataStartIndext).getTime2());
+                    time = String.valueOf(mOHLCData.get((i+1)*step+ mDataStartIndext).getTime2());
                 }
                 TitleX.add(time);
 

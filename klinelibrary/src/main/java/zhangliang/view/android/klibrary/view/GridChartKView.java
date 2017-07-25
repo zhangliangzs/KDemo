@@ -136,6 +136,7 @@ public class GridChartKView extends View {
 
 	/** 虚线效果 */
 	private PathEffect mDashEffect;
+	//Y轴在图表内部
 	protected boolean isInnerYAxis = false;
 	/** 边线色 */
 	private int mBorderColor= Color.WHITE;
@@ -319,7 +320,14 @@ public void setShowTitle(boolean isshow)
 
 
 		//经度
-		longitudeSpacing = (viewWidth - DEFAULT_AXIS_MARGIN_RIGHT-2)/DEFAULT_LOGITUDE_NUM;
+		if(isInnerYAxis)
+		{
+			longitudeSpacing = (viewWidth -2)/DEFAULT_LOGITUDE_NUM;
+		}else
+		{
+			longitudeSpacing = (viewWidth - DEFAULT_AXIS_MARGIN_RIGHT-2)/DEFAULT_LOGITUDE_NUM;
+		}
+
 		//维度#####4-8
 		if(isShowTitle)
 		{
@@ -537,16 +545,30 @@ public void setShowTitle(boolean isshow)
 		paintAxis.setColor(mAxisColor);
 		paintAxis.setTextSize(DEFAULT_AXIS_TITLE_SIZE);
 
-		for (int i = 0; i < axisXTitles.size(); i++) {
-			float tWidth = paint.measureText(axisXTitles.get(i));
-
+		//for (int i = 0; i < axisXTitles.size()-1; i++) {
+		for (int i = 0; i <DEFAULT_LOGITUDE_NUM-1 ; i++) {
+			float tWidth = paint.measureText(axisXTitles.get(i))/2;
 			// 绘制刻度
 			if(Position.Top==mPosition)
 			{
-				canvas.drawText(axisXTitles.get(i), super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT-longitudeSpacing * (i)-tWidth, MIDDLE_CHART_TOP-Middle_title_height-mBuyOrSellChartHeight, paintAxis);
+				if(isInnerYAxis)
+				{
+					canvas.drawText(axisXTitles.get(i), super.getWidth()-longitudeSpacing * (i+1)-tWidth, MIDDLE_CHART_TOP-Middle_title_height-mBuyOrSellChartHeight, paintAxis);
+				}else
+				{
+					canvas.drawText(axisXTitles.get(i), super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT-longitudeSpacing * (i+1)-tWidth, MIDDLE_CHART_TOP-Middle_title_height-mBuyOrSellChartHeight, paintAxis);
+				}
+
 			}else
 			{
-				canvas.drawText(axisXTitles.get(i), super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT-longitudeSpacing * (i)-tWidth, getHeight(), paintAxis);
+				if(isInnerYAxis)
+				{
+					canvas.drawText(axisXTitles.get(i), super.getWidth()-longitudeSpacing * (i+1)-tWidth, getHeight()-2, paintAxis);
+				}else
+				{
+					canvas.drawText(axisXTitles.get(i), super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT-longitudeSpacing * (i+1)-tWidth, getHeight()-2, paintAxis);
+				}
+
 			}
 
 
@@ -731,8 +753,16 @@ public void setCrossCLick(boolean have)
 		Paint mPaint = new Paint();
 		mPaint.setColor(DEFAULT_AXIS_XYCLICK_COLOR);
 		mPaint.setStrokeWidth(2);
+		float lineVLength =0;
 		// 垂直线高度
-		float lineVLength = getHeight() - 2f;
+		if(Position.Bottom==mPosition)
+		{
+			 lineVLength = getHeight() -getTitleHeight();
+		}else
+		{
+			 lineVLength = getHeight() - 2f;
+		}
+
 		if(!getAxisXClickTitle().equals(""))
 			drawAlphaXTextBox(getAxisXClickTitle(),canvas);
 		if(!getAxisYClickTitle().equals(""))
@@ -740,8 +770,37 @@ public void setCrossCLick(boolean have)
 
 		if (touchPoint!=null) {
 
+
 			float value = DEFAULT_AXIS_MARGIN_RIGHT;
-			if(!isInnerYAxis)
+			if(isInnerYAxis)
+			{
+				value = sp2px(mContext,40);
+				// 显示纵线
+				canvas.drawLine(touchPoint.x, 1f, touchPoint.x, lineVLength, mPaint);
+				// 显示横线
+				canvas.drawLine(1f, touchPoint.y >MIDDLE_CHART_TOP-2*TITLE_HEIGHT ? MIDDLE_CHART_TOP-2*TITLE_HEIGHT : touchPoint.y, super.getWidth() -value , touchPoint.y >MIDDLE_CHART_TOP-2*TITLE_HEIGHT ? MIDDLE_CHART_TOP-2*TITLE_HEIGHT : touchPoint.y, mPaint);
+				//画实心圆
+				canvas.drawCircle(touchPoint.x, touchPoint.y >MIDDLE_CHART_TOP-2*TITLE_HEIGHT ? MIDDLE_CHART_TOP-2*TITLE_HEIGHT : touchPoint.y, 10, mPaint);
+				//画空心圆
+				mPaint.setStyle(Paint.Style.STROKE);
+				canvas.drawCircle(touchPoint.x, touchPoint.y >MIDDLE_CHART_TOP-2*TITLE_HEIGHT ? MIDDLE_CHART_TOP-2*TITLE_HEIGHT : touchPoint.y, 25, mPaint);
+			}else
+			{
+				// 显示纵线
+				canvas.drawLine(touchPoint.x>super.getWidth()-value?super.getWidth()-value:touchPoint.x, 1f, touchPoint.x>super.getWidth()-value?super.getWidth()-value:touchPoint.x, lineVLength, mPaint);
+				// 显示横线
+				canvas.drawLine(1f, touchPoint.y >MIDDLE_CHART_TOP-2*TITLE_HEIGHT ? MIDDLE_CHART_TOP-2*TITLE_HEIGHT : touchPoint.y, super.getWidth() -value , touchPoint.y >MIDDLE_CHART_TOP-2*TITLE_HEIGHT ? MIDDLE_CHART_TOP-2*TITLE_HEIGHT : touchPoint.y, mPaint);
+				//画实心圆
+				canvas.drawCircle(touchPoint.x>super.getWidth()-value?super.getWidth()-value:touchPoint.x, touchPoint.y >MIDDLE_CHART_TOP-2*TITLE_HEIGHT ? MIDDLE_CHART_TOP-2*TITLE_HEIGHT : touchPoint.y, 10, mPaint);
+				//画空心圆
+				mPaint.setStyle(Paint.Style.STROKE);
+				canvas.drawCircle(touchPoint.x>super.getWidth()-value?super.getWidth()-value:touchPoint.x, touchPoint.y >MIDDLE_CHART_TOP-2*TITLE_HEIGHT ? MIDDLE_CHART_TOP-2*TITLE_HEIGHT : touchPoint.y, 25, mPaint);
+			}
+
+
+		/*
+			float value = DEFAULT_AXIS_MARGIN_RIGHT;
+		if(!isInnerYAxis)
 			{
 				value = sp2px(mContext,40);
 			}
@@ -753,7 +812,7 @@ public void setCrossCLick(boolean have)
 			canvas.drawCircle(touchPoint.x>super.getWidth()-value?super.getWidth()-value:touchPoint.x, touchPoint.y >MIDDLE_CHART_TOP-2*TITLE_HEIGHT ? MIDDLE_CHART_TOP-2*TITLE_HEIGHT : touchPoint.y, 10, mPaint);
 			//画空心圆
 			mPaint.setStyle(Paint.Style.STROKE);
-			canvas.drawCircle(touchPoint.x>super.getWidth()-value?super.getWidth()-value:touchPoint.x, touchPoint.y >MIDDLE_CHART_TOP-2*TITLE_HEIGHT ? MIDDLE_CHART_TOP-2*TITLE_HEIGHT : touchPoint.y, 25, mPaint);
+			canvas.drawCircle(touchPoint.x>super.getWidth()-value?super.getWidth()-value:touchPoint.x, touchPoint.y >MIDDLE_CHART_TOP-2*TITLE_HEIGHT ? MIDDLE_CHART_TOP-2*TITLE_HEIGHT : touchPoint.y, 25, mPaint);*/
 		}
 	}
 
@@ -787,8 +846,8 @@ public void setCrossCLick(boolean have)
 			 bottom = MIDDLE_CHART_TOP-Middle_title_height-mBuyOrSellChartHeight;
 		}else
 		{
-			top =getHeight()-getTitleHeight();
-			bottom =getHeight();
+			top =getHeight()-getTitleHeight()+10;
+			bottom =getHeight()-2;
 		}
 
 		canvas.drawRect(left, top, right, bottom, mPaintBox);
