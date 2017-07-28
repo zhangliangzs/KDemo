@@ -545,34 +545,40 @@ public void setShowTitle(boolean isshow)
 		paintAxis.setColor(mAxisColor);
 		paintAxis.setTextSize(DEFAULT_AXIS_TITLE_SIZE);
 
-		//for (int i = 0; i < axisXTitles.size()-1; i++) {
-		for (int i = 0; i <DEFAULT_LOGITUDE_NUM-1 ; i++) {
-			float tWidth = paint.measureText(axisXTitles.get(i))/2;
-			// 绘制刻度
-			if(Position.Top==mPosition)
-			{
-				if(isInnerYAxis)
+		try {
+			//for (int i = 0; i < axisXTitles.size()-1; i++) {
+			for (int i = 0; i <DEFAULT_LOGITUDE_NUM-1&&i<axisXTitles.size() ; i++) {
+				float tWidth = paint.measureText(axisXTitles.get(i))/2;
+				// 绘制刻度
+				if(Position.Top==mPosition)
 				{
-					canvas.drawText(axisXTitles.get(i), super.getWidth()-longitudeSpacing * (i+1)-tWidth, MIDDLE_CHART_TOP-Middle_title_height-mBuyOrSellChartHeight, paintAxis);
+					if(isInnerYAxis)
+					{
+						canvas.drawText(axisXTitles.get(i), super.getWidth()-longitudeSpacing * (i+1)-tWidth, MIDDLE_CHART_TOP-Middle_title_height-mBuyOrSellChartHeight, paintAxis);
+					}else
+					{
+						canvas.drawText(axisXTitles.get(i), super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT-longitudeSpacing * (i+1)-tWidth, MIDDLE_CHART_TOP-Middle_title_height-mBuyOrSellChartHeight, paintAxis);
+					}
+
 				}else
 				{
-					canvas.drawText(axisXTitles.get(i), super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT-longitudeSpacing * (i+1)-tWidth, MIDDLE_CHART_TOP-Middle_title_height-mBuyOrSellChartHeight, paintAxis);
+					if(isInnerYAxis)
+					{
+						canvas.drawText(axisXTitles.get(i), super.getWidth()-longitudeSpacing * (i+1)-tWidth, getHeight()-2, paintAxis);
+					}else
+					{
+						canvas.drawText(axisXTitles.get(i), super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT-longitudeSpacing * (i+1)-tWidth, getHeight()-2, paintAxis);
+					}
+
 				}
 
-			}else
-			{
-				if(isInnerYAxis)
-				{
-					canvas.drawText(axisXTitles.get(i), super.getWidth()-longitudeSpacing * (i+1)-tWidth, getHeight()-2, paintAxis);
-				}else
-				{
-					canvas.drawText(axisXTitles.get(i), super.getWidth()-DEFAULT_AXIS_MARGIN_RIGHT-longitudeSpacing * (i+1)-tWidth, getHeight()-2, paintAxis);
-				}
 
 			}
-
+		}catch (Exception e)
+		{
 
 		}
+
 
 	}
 	public float sp2px(Context context, float spValue) {
