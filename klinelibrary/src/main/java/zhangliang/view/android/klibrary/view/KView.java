@@ -1303,13 +1303,13 @@ public class KView extends GridChartKView {
                             startX,
                             startY > MIDDLE_CHART_TOP - 2 * TITLE_HEIGHT ? MIDDLE_CHART_TOP - 2 * TITLE_HEIGHT : startY,
                             (float) (super.getWidth() - super.DEFAULT_AXIS_MARGIN_RIGHT - 2 - mCandleWidth * i - mCandleWidth * 0.5f),
-                            (float) (((mMaxPrice - lineEntity.getLineData().get(mDataStartIndext + i)) * rate)  + UPER_CHART_TOP) > MIDDLE_CHART_TOP - 2 * TITLE_HEIGHT ? MIDDLE_CHART_TOP - 2 * TITLE_HEIGHT : (float) ((mMaxPrice - lineEntity.getLineData().get(mDataStartIndext + i)) * rate)  + UPER_CHART_TOP,
+                            (float) (((mMaxPrice - lineEntity.getLineData().get(mDataStartIndext + i)) * rate)  + Up_chart_margin+Up_title_height) > MIDDLE_CHART_TOP - 2 * TITLE_HEIGHT ? MIDDLE_CHART_TOP - 2 * TITLE_HEIGHT : (float) ((mMaxPrice - lineEntity.getLineData().get(mDataStartIndext + i)) * rate)  + Up_chart_margin+Up_title_height,
                             paint);
 
 
                 }
                 startX = (float) (super.getWidth() - super.DEFAULT_AXIS_MARGIN_RIGHT - 2 - mCandleWidth * i - mCandleWidth * 0.5f);
-                startY = (float) ((mMaxPrice - lineEntity.getLineData().get(mDataStartIndext + i)) * rate)  + UPER_CHART_TOP;
+                startY = (float) ((mMaxPrice - lineEntity.getLineData().get(mDataStartIndext + i)) * rate)  + Up_chart_margin+Up_title_height;
 
 
             }
