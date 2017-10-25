@@ -1561,14 +1561,14 @@ public class KView extends GridChartKView {
 
         Double sum = 0.0;
         Double avg = 0.0;
-        java.text.DecimalFormat   df =new   java.text.DecimalFormat("#.00");
+      //  java.text.DecimalFormat   df =new   java.text.DecimalFormat("#.00");
         for (int i = entityList.size() - 1; i >= 0; i--) {
             Double close = entityList.get(i).getVol();
             if (entityList.size() - i < days) {
                 sum = sum + close;
                 int d=entityList.size() - i;
                 avg = sum / d;
-                avg=Double.parseDouble(df.format(avg));
+           //     avg=Double.parseDouble(df.format(avg));
 
             } else {
                 sum = 0.0;
@@ -1578,7 +1578,7 @@ public class KView extends GridChartKView {
                 }
 
                 avg = sum / days;
-                avg=Double.parseDouble(df.format(avg));
+           //     avg=Double.parseDouble(df.format(avg));
 
             }
             MAValues.add(avg);
