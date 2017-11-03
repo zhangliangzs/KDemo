@@ -91,6 +91,7 @@ public class KView extends GridChartKView {
     private boolean mShowMACD = false;
     private boolean mShowJKD = false;
 
+    private boolean isTimeType = false;
     /**
      * 显示纬线数
      */
@@ -143,12 +144,18 @@ public class KView extends GridChartKView {
      **/
     public static int kline5dayline = 0x535d66;
 
+    public static int klineTimeline = 0x535d66;
+
     private boolean mHave5Line = true;
     public void setHave5Line(boolean have5Line)
     {
         mHave5Line=have5Line;
     }
 
+    public void  setTimeType(boolean showTime)
+    {
+        isTimeType =  showTime;
+    }
     /**
      * 默认十日均线颜色
      **/
@@ -283,6 +290,7 @@ public class KView extends GridChartKView {
         mMinPrice = 0;
         mShowMACD = true;
         mShowJKD = false;
+        klineTimeline= res.getColor(R.color.kline5dayline);
         kline5dayline = res.getColor(R.color.kline5dayline);
         kline10dayline = res.getColor(R.color.kline10dayline);
         kline30dayline = res.getColor(R.color.kline30dayline);
@@ -292,7 +300,10 @@ public class KView extends GridChartKView {
         mUpColor =klineRed;
         mDownColor = klineGreen;
     }
-
+    public void setKlineTimeline(int color)
+    {
+        klineTimeline = color;
+    }
     public void setKline5dayline(int color)
     {
         kline5dayline = color;
@@ -312,9 +323,18 @@ public class KView extends GridChartKView {
         initAxisX();
         initAxisY();
         super.onDraw(canvas);
-        drawUpperRegion(canvas);
+
+        if(isTimeType)
+        {
+            drawTime(canvas);
+        }else
+        {
+            drawUpperRegion(canvas);
+            drawMA(canvas);
+        }
+
         drawSticks(canvas);
-        drawMA(canvas);
+
         drawVMA(canvas);
         if (mShowMACD) {
             drawMACD(canvas);
@@ -323,6 +343,104 @@ public class KView extends GridChartKView {
             drawKDJ(canvas);
         }
         drawWithFingerClick(canvas);
+    }
+
+    private void setTimeMaxMinPrice() {
+
+        if (mOHLCData == null || mOHLCData.size() <= 0||mDataStartIndext<0) {
+            return;
+        }
+        mMinPrice = mOHLCData.get(mDataStartIndext).getHighPrice();
+        mMaxPrice = mOHLCData.get(mDataStartIndext).getHighPrice();
+
+        minIndex = mDataStartIndext;
+        maxIndex = mDataStartIndext;
+
+        for (int i = 0; i < mShowDataNum && mDataStartIndext + i < mOHLCData.size(); i++) {
+            MarketChartData entity = mOHLCData.get(mDataStartIndext + i);
+
+            if (mMinPrice > entity.getHighPrice()) {
+                mMinPrice = entity.getHighPrice();
+                minIndex = mDataStartIndext + i;
+            }
+            if (mMaxPrice < entity.getHighPrice()) {
+                mMaxPrice = entity.getHighPrice();
+                maxIndex = i + mDataStartIndext;
+            }
+        }
+    }
+    private void drawTime(Canvas canvas) {
+        if (mOHLCData == null || mOHLCData.size() < 0)
+            return;
+        setTimeMaxMinPrice();
+        float width = getWidth() - super.DEFAULT_AXIS_MARGIN_RIGHT - 2;
+        mCandleWidth = width / 10.0 * 10.0 / mShowDataNum;
+
+        double rate = (getUperChartHeight()) / (mMaxPrice - mMinPrice);
+        // 绘制上部曲线图及上部分MA值
+        float startX = 0;
+        float startY = 0;
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setStrokeWidth(6);
+        paint.setAntiAlias(true);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(klineTimeline);
+        paint.setTextSize(DEFAULT_AXIS_TITLE_SIZE);
+
+        for (int i = 0; i < mShowDataNum
+                && mDataStartIndext + i < mOHLCData.size(); i++) {
+            if (i != 0) {
+
+                canvas.drawLine(
+                        startX,
+                        startY > MIDDLE_CHART_TOP - 2 * TITLE_HEIGHT ? MIDDLE_CHART_TOP - 2 * TITLE_HEIGHT : startY,
+                        (float) (super.getWidth() - super.DEFAULT_AXIS_MARGIN_RIGHT - 2 - mCandleWidth * i - mCandleWidth * 0.5f),
+                        (float) (((mMaxPrice - mOHLCData.get(mDataStartIndext + i).getHighPrice()) * rate)  + Up_chart_margin+Up_title_height) > MIDDLE_CHART_TOP - 2 * TITLE_HEIGHT ? MIDDLE_CHART_TOP - 2 * TITLE_HEIGHT : (float) ((mMaxPrice - mOHLCData.get(mDataStartIndext + i).getHighPrice()) * rate)  + Up_chart_margin+Up_title_height,
+                        paint);
+
+
+            }
+            startX = (float) (super.getWidth() - super.DEFAULT_AXIS_MARGIN_RIGHT - 2 - mCandleWidth * i - mCandleWidth * 0.5f);
+            startY = (float) ((mMaxPrice - mOHLCData.get(mDataStartIndext + i).getHighPrice()) * rate)  + Up_chart_margin+Up_title_height;
+
+
+
+
+            Rect rect = new Rect();
+
+            //画最大和最小值
+            if (mDataStartIndext + i == maxIndex) {
+                String price = mOHLCData.get(mDataStartIndext + i).getHighPrice() + "";
+                paint.getTextBounds(price, 0, 1, rect);
+                float w = paint.measureText(price);
+
+                if ((startX-w) > 0) {
+                    canvas.drawCircle(startX, startY, 10, paint);
+                    canvas.drawText(mOHLCData.get(mDataStartIndext + i).getHighPrice()+"",startX-w,startY+2*DEFAULT_AXIS_TITLE_SIZE,paint);
+                }else {
+                    canvas.drawCircle(startX, startY, 10, paint);
+                    canvas.drawText(mOHLCData.get(mDataStartIndext + i).getHighPrice()+"",startX+w,startY+2*DEFAULT_AXIS_TITLE_SIZE,paint);
+                }
+
+            }
+
+            if (mDataStartIndext + i == minIndex) {
+                String price = mOHLCData.get(mDataStartIndext + i).getHighPrice() + "";
+                paint.getTextBounds(price, 0, 1, rect);
+                float w = paint.measureText(price);
+
+
+                if ((startX+w) > super.getWidth()) {
+                    canvas.drawCircle(startX, startY, 10, paint);
+                    canvas.drawText(mOHLCData.get(mDataStartIndext + i).getHighPrice()+"",startX-w,startY,paint);
+                }else {
+                    canvas.drawCircle(startX, startY, 10, paint);
+                    canvas.drawText(mOHLCData.get(mDataStartIndext + i).getHighPrice()+"",startX,startY,paint);
+                }
+
+            }
+        }
+
     }
 
     /**
@@ -397,6 +515,11 @@ public class KView extends GridChartKView {
      */
     @Override
     protected void drawWithFingerClick(Canvas canvas) {
+
+        if (mOHLCData == null || mOHLCData.size() <= 0) {
+            return;
+        }
+
         int index = getSelectedIndex();
         if(super.getTouchPoint()==null)
             return;
@@ -460,6 +583,11 @@ public class KView extends GridChartKView {
     /*版本2*/
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+
+        if (mOHLCData == null || mOHLCData.size() <= 0) {
+            return true;
+        }
+
         PointF point = null;
         ValueAnimator mValueAnimator=null;
 
@@ -1063,56 +1191,6 @@ public class KView extends GridChartKView {
 
         }
 
-/*       for (int i = mDataStartIndext; i < mDataStartIndext + mShowDataNum && i < BAR.size(); i++) {
-
-            // 绘制矩形
-            if (BAR.get(i) >= 0.0) {
-                paint.setColor(klineRed);
-                float top = (float) (zero - BAR.get(i) * rate);
-                if(BAR.get(i)<bar)
-                {
-                    paint.setStyle(Paint.Style.STROKE);
-                }else
-                {
-                    paint.setStyle(Paint.Style.FILL);
-                }
-
-                canvas.drawRect(viewWidth - 1 - (float) mCandleWidth
-                        * (i + 1 - mDataStartIndext), top, viewWidth - 2
-                        - (float) mCandleWidth * (i - mDataStartIndext), zero, paint);
-            } else {
-                paint.setColor(klineGreen);
-                if(BAR.get(i)<bar)
-                {
-                    paint.setStyle(Paint.Style.STROKE);
-                }else
-                {
-                    paint.setStyle(Paint.Style.FILL);
-                }
-                float bottom = (float) (zero - BAR.get(i) * rate);
-                canvas.drawRect(viewWidth - 1 - (float) mCandleWidth
-                        * (i + 1 - mDataStartIndext), zero, viewWidth - 2
-                        - (float) mCandleWidth * (i - mDataStartIndext), bottom, paint);
-            }
-            if (i != mDataStartIndext) {
-
-                canvas.drawLine(viewWidth - 1 - (float) mCandleWidth
-                                * (i + 1 - mDataStartIndext) + (float) mCandleWidth / 2,
-                        zero - (float) ((DEA.get(i)) * rate), viewWidth - 2
-                                - (float) mCandleWidth * (i - mDataStartIndext)
-                                + (float) mCandleWidth / 2, dea, whitePaint);
-
-                canvas.drawLine(viewWidth - 1 - (float) mCandleWidth
-                                * (i + 1 - mDataStartIndext) + (float) mCandleWidth / 2,
-                        zero - (float) ((DIF.get(i)) * rate), viewWidth - 2
-                                - (float) mCandleWidth * (i - mDataStartIndext)
-                                + (float) mCandleWidth / 2, dif, yellowPaint);
-            }
-            bar = BAR.get(i);
-            dea = zero - (float) ((DEA.get(i)) * rate);
-            dif = zero - (float) ((DIF.get(i)) * rate);
-        }*/
-
         float margin_right = DEFAULT_AXIS_MARGIN_RIGHT;
         if(super.isInnerYAxis)
         {
@@ -1282,7 +1360,7 @@ public class KView extends GridChartKView {
     private void drawMA(Canvas canvas) {
         if (MALineData == null || MALineData.size() < 0)
             return;
-
+        setMaxMinPrice();
         double rate = (getUperChartHeight()) / (mMaxPrice - mMinPrice);
         // 绘制上部曲线图及上部分MA值
         for (int j = 0; j < MALineData.size(); j++) {
