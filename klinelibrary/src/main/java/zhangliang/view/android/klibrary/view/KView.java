@@ -18,6 +18,7 @@ import android.view.ViewConfiguration;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -841,7 +842,7 @@ public class KView extends GridChartKView {
             } else if (value.length() > super.getAxisYMaxTitleLength()) {
                 value = value.substring(0, super.getAxisYMaxTitleLength());
             }
-            TitleY.add(value);
+            TitleY.add(deFormatNew(value,8));
         }
         //处理最大值
         String value = String.valueOf((mMaxPrice) / 10 * 10);
@@ -854,7 +855,23 @@ public class KView extends GridChartKView {
         TitleY.add(value);
         super.setAxisYTitles(TitleY);
     }
-
+    public static String deFormatNew(String str,int type){
+        try{
+            BigDecimal bigDecimal=new BigDecimal(str);
+            String str_ws="0.#";
+            if(type==-1){
+                str_ws="0.00";
+            }
+            for(int n=1;type>1&&n<type;n++){
+                str_ws=str_ws+"#";
+            }
+            DecimalFormat df_ls = new DecimalFormat(str_ws);
+            str=df_ls.format(bigDecimal.setScale(type,BigDecimal.ROUND_FLOOR).doubleValue());
+        }catch (Exception e){
+            str="0.00";
+        }
+        return str;
+    }
 
 
     private void drawUpperRegion(Canvas canvas) {
@@ -923,7 +940,7 @@ public class KView extends GridChartKView {
             Rect rect = new Rect();
             //画最大
             if (mDataStartIndext + i == maxIndex) {
-                String maxPrice = entity.getHighPrice() + "";
+                String maxPrice = deFormatNew(entity.getHighPrice()+"",8) ;
                 paint.getTextBounds(maxPrice, 0, 1, rect);
                 float w = paint.measureText(maxPrice);
                 //左箭头
@@ -997,7 +1014,7 @@ public class KView extends GridChartKView {
 
             //最小值
             if (mDataStartIndext + i == minIndex) {
-                String minPrice = entity.getLowPrice() + "";
+                String minPrice = deFormatNew(entity.getLowPrice()+"",8);
                 paint.getTextBounds(minPrice, 0, 1, rect);
                 float w = paint.measureText(minPrice);
                 //左箭头
