@@ -546,8 +546,8 @@ public class KView extends GridChartKView {
         }
 
         if(isShowTitle) {
-            super.drawAlphaTopTextBox(res.getString(R.string.open) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getOpenPrice() + res.getString(R.string.high) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getHighPrice() +
-                    res.getString(R.string.low) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getLowPrice() + res.getString(R.string.close) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getClosePrice() + res.getString(R.string.vol) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getVol(), canvas);
+            super.drawAlphaTopTextBox(res.getString(R.string.open) + deFormatNew(mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getOpenPrice()+"",8) + res.getString(R.string.high) + deFormatNew(mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getHighPrice()+"",8) +
+                    res.getString(R.string.low) + deFormatNew(mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getLowPrice()+"",8) + res.getString(R.string.close) + deFormatNew(mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getClosePrice()+"",8) + res.getString(R.string.vol) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getVol(), canvas);
             drawMAText(MALineData, canvas, mShowDataNum - 1 - index + mDataStartIndext, kline5dayline, kline10dayline, kline30dayline);
             drawVMAText(MAVLineData, canvas, mShowDataNum - 1 - index + mDataStartIndext, kline5dayline, kline10dayline);
             //  drawAlphaMiddleTextBox(res.getString(R.string.vol) + mOHLCData.get(mShowDataNum - 1 - index + mDataStartIndext).getVol(), canvas);

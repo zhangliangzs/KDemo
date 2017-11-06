@@ -13,6 +13,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -772,7 +774,7 @@ public void setCrossCLick(boolean have)
 		if(!getAxisXClickTitle().equals(""))
 			drawAlphaXTextBox(getAxisXClickTitle(),canvas);
 		if(!getAxisYClickTitle().equals(""))
-			drawAlphaYTextBox(getAxisYClickTitle(),canvas);
+			drawAlphaYTextBox(deFormatNew(getAxisYClickTitle()+"",8),canvas);
 
 		if (touchPoint!=null) {
 
@@ -822,12 +824,29 @@ public void setCrossCLick(boolean have)
 		}
 	}
 
+
+	public static String deFormatNew(String str,int type){
+		try{
+			BigDecimal bigDecimal=new BigDecimal(str);
+			String str_ws="0.#";
+			if(type==-1){
+				str_ws="0.00";
+			}
+			for(int n=1;type>1&&n<type;n++){
+				str_ws=str_ws+"#";
+			}
+			DecimalFormat df_ls = new DecimalFormat(str_ws);
+			str=df_ls.format(bigDecimal.setScale(type,BigDecimal.ROUND_FLOOR).doubleValue());
+		}catch (Exception e){
+			str="0.00";
+		}
+		return str;
+	}
 	/**
 	 * 绘制半�?明文本�?
 	 * @param content
 	 * @param canvas
 	 */
-
 	private void drawAlphaXTextBox(String content, Canvas canvas) {
 
 
