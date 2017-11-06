@@ -1098,7 +1098,6 @@ public class KView extends GridChartKView {
         p.setAntiAlias(true);// 设置画笔的锯齿效果
         RectF oval3 = new RectF(left, top, right, bottom);// 设置个新的长方形
         canvas.drawRoundRect(oval3, mCornerRadius, mCornerRadius, p);//第二个参数是x半径，第三个参数是y半径
-
     }
 
     private void drawMACD(Canvas canvas) {
