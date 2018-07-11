@@ -1,5 +1,5 @@
 # KDemo
-专业k线图表组件，支持JDK,MACD,MA，VOL等指标，后续指标陆续更新
+专业k线图表组件，支持JDK,MACD,MA，VOL,BOLL,EMA等指标，后续指标陆续更新
 
 ![image](https://github.com/zhangliangzs/KDemo/blob/master/photo/device.png)
 
