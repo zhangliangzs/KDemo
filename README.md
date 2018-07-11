@@ -114,7 +114,6 @@ private List<MarketChartData> marketChartDataLists = new ArrayList<MarketChartDa
 
       就能将图表数据显示出来
 
-
       主要方法：
             mMyChartsView.setClose();//关闭指标
             mMyChartsView.setMACDShow();//显示macd
