@@ -99,7 +99,6 @@ public class MarketChartData {
     public double getVol() {
         return vol;
     }
-
     public void setVol(double vol) {
         this.vol = vol;
     }
