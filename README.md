@@ -120,7 +120,8 @@ private List<MarketChartData> marketChartDataLists = new ArrayList<MarketChartDa
             mMyChartsView.setMACDShow();//显示macd
             mMyChartsView.setKDJShow();//显示kdj
 
-网络接口封住了，以下是json格式的数组，可以写人本地，加载本地数据显示效果
+网络接口封住了，以下是json格式的数组，可以写入本地，加载本地数据显示效果，数组数据0-5依次为：时间戳，最低价，最高价，开盘价，收盘价，成交量
+对应设置好MarketChartData模型数据，就能显示
 {
     "des": "",
     "isSuc": true,
